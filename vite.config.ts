@@ -21,6 +21,8 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        // Stream proxy requests must never be answered by the SPA fallback
+        navigateFallbackDenylist: [/^\/api\//],
       },
     }),
   ],
