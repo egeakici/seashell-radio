@@ -6,8 +6,6 @@ const MIRRORS = [
   'https://at1.api.radio-browser.info',
 ];
 
-const HEADERS = { 'User-Agent': 'Radio Browser/1.0 (https://github.com/akiciege/radio-browser)' };
-
 let activeMirror = MIRRORS[0];
 
 async function apiFetch<T>(path: string, params: Record<string, string> = {}): Promise<T> {
@@ -17,7 +15,7 @@ async function apiFetch<T>(path: string, params: Record<string, string> = {}): P
   for (let i = 0; i < MIRRORS.length; i++) {
     const mirror = MIRRORS[(MIRRORS.indexOf(activeMirror) + i) % MIRRORS.length];
     try {
-      const res = await fetch(`${mirror}/json${path}?${query}`, { headers: HEADERS });
+      const res = await fetch(`${mirror}/json${path}?${query}`);
       if (!res.ok) continue;
       activeMirror = mirror;
       return res.json() as Promise<T>;
@@ -82,5 +80,5 @@ export async function getStationsByCountryAndTag(
 
 // Fire-and-forget click registration for Radio Browser stats
 export function registerClick(stationuuid: string): void {
-  fetch(`${activeMirror}/json/url/${stationuuid}`, { headers: HEADERS }).catch(() => null);
+  fetch(`${activeMirror}/json/url/${stationuuid}`).catch(() => null);
 }
