@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
-import { audioEngine } from '../audio/audioEngine';
+import { audioEngine, PlaybackAbortedError } from '../audio/audioEngine';
 import { registerClick } from '../api/radioBrowser';
 import { favoritesStorage } from '../storage/favoritesStorage';
 import { volumeStorage } from '../storage/volumeStorage';
@@ -94,10 +94,12 @@ export const useStore = create<Store>()(
 
         try {
           const url = station.url_resolved || station.url;
-          await audioEngine.play(url);
+          await audioEngine.play(url, station.hls === 1);
           set(s => ({ player: { ...s.player, isPlaying: true, isLoading: false } }));
           registerClick(station.stationuuid);
-        } catch {
+        } catch (err) {
+          // A newer station was selected while this one was still connecting — that call owns the state now
+          if (err instanceof PlaybackAbortedError) return;
           set(s => ({
             player: { ...s.player, isPlaying: false, isLoading: false, error: 'Stream failed to load. Try another station.' },
           }));
