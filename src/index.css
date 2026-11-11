@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    /* Dark native UI: form controls, scrollbars in browsers without custom scrollbar support */
+    color-scheme: dark;
+  }
+
   html, body, #root {
     height: 100%;
     overscroll-behavior: none;
@@ -165,6 +170,57 @@
   background: #818cf8;
   cursor: pointer;
   box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.18);
+}
+
+/* ── Scrollbars ───────────────────────────────────────────────
+   Thin, rounded thumb on a transparent track so scroll areas blend into
+   the dark surfaces instead of showing the light OS scrollbar. */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.16);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(129, 140, 248, 0.55);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background-color: rgba(129, 140, 248, 0.75);
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* Firefox — standard properties. Kept out of Chromium, where they would
+   override the ::-webkit-scrollbar styling above. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  }
+}
+
+/* Slide-in animation for the mobile sidebar drawer */
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.28s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* Slide-up animation for StationPanel */
