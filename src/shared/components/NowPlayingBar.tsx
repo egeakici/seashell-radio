@@ -30,7 +30,8 @@ export function NowPlayingBar() {
 
   return (
     <div
-      className="absolute inset-x-2 bottom-2 flex items-center gap-3 rounded-2xl border border-white/[0.08] bg-[rgba(35,34,44,0.85)] px-3 py-2.5 shadow-float backdrop-blur-2xl sm:inset-x-auto sm:bottom-5 sm:left-1/2 sm:w-[520px] sm:max-w-[calc(100%-2rem)] sm:-translate-x-1/2 sm:gap-4 sm:px-4 sm:py-3"
+      // Darker than the content panel (canvas) so it never blends into the background
+      className="absolute inset-x-2 bottom-2 flex items-center gap-3 rounded-2xl border border-white/[0.10] bg-[rgba(14,13,19,0.94)] px-3 py-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl sm:inset-x-auto sm:bottom-5 sm:left-1/2 sm:w-[860px] sm:max-w-[calc(100%-2rem)] sm:-translate-x-1/2 sm:gap-5 sm:px-5 sm:py-3.5"
       style={{ zIndex: 1100 }}
     >
       <div className="relative flex-shrink-0">
