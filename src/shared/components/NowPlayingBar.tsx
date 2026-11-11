@@ -4,15 +4,9 @@ import { useStore } from '../../core/store/useStore';
 import { StationFavicon } from './StationFavicon';
 import { LoadingSpinner } from './LoadingSpinner';
 
-interface Props {
-  /**
-   * 'viewport' centers the bar on the screen (map mode).
-   * 'container' centers it inside the nearest positioned parent (the discovery content column).
-   */
-  placement?: 'viewport' | 'container';
-}
-
-export function NowPlayingBar({ placement = 'viewport' }: Props) {
+// Floats at the bottom of the nearest positioned parent (the content panel or the map).
+// Phones: full-width compact mini player. Larger screens: centered 520px bar.
+export function NowPlayingBar() {
   const { player, pauseResume, playNext, playPrev, mode, mapPanelOpen, volume, setVolume, toggleFavorite, isFavorite } = useStore();
   const [prevVol, setPrevVol] = useState(volume > 0 ? volume : 0.8);
 
@@ -35,11 +29,11 @@ export function NowPlayingBar({ placement = 'viewport' }: Props) {
 
   return (
     <div
-      className={`${placement === 'viewport' ? 'fixed' : 'absolute'} bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-4 rounded-2xl border border-white/[0.08] bg-[rgba(35,34,44,0.78)] px-4 py-3 shadow-float backdrop-blur-2xl`}
-      style={{ zIndex: 1100, width: '520px', maxWidth: placement === 'viewport' ? 'calc(100vw - 2rem)' : 'calc(100% - 2rem)' }}
+      className="absolute inset-x-2 bottom-2 flex items-center gap-3 rounded-2xl border border-white/[0.08] bg-[rgba(35,34,44,0.85)] px-3 py-2.5 shadow-float backdrop-blur-2xl sm:inset-x-auto sm:bottom-5 sm:left-1/2 sm:w-[520px] sm:max-w-[calc(100%-2rem)] sm:-translate-x-1/2 sm:gap-4 sm:px-4 sm:py-3"
+      style={{ zIndex: 1100 }}
     >
       <div className="relative flex-shrink-0">
-        <StationFavicon src={currentStation.favicon} name={currentStation.name} size={48} />
+        <StationFavicon src={currentStation.favicon} name={currentStation.name} size={44} />
         {isPlaying && (
           <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 animate-pulse rounded-full border-2 border-surface bg-live" />
         )}
@@ -52,9 +46,10 @@ export function NowPlayingBar({ placement = 'viewport' }: Props) {
         </p>
       </div>
 
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2">
+        {/* Phones control volume with their hardware buttons */}
         <div
-          className="volume-control"
+          className="volume-control hidden sm:flex"
           onMouseLeave={e => {
             const active = document.activeElement;
             if (active instanceof HTMLElement && e.currentTarget.contains(active)) {
@@ -80,9 +75,9 @@ export function NowPlayingBar({ placement = 'viewport' }: Props) {
           />
         </div>
 
-        <div className="w-px h-5 bg-white/10 mx-0.5 flex-shrink-0" />
+        <div className="mx-0.5 hidden h-5 w-px flex-shrink-0 bg-white/10 sm:block" />
 
-        <button onClick={() => { void playPrev(); }} className="p-2 text-muted hover:text-white transition-colors" aria-label="Previous station">
+        <button onClick={() => { void playPrev(); }} className="hidden p-2 text-muted transition-colors hover:text-white sm:block" aria-label="Previous station">
           <SkipBack size={18} />
         </button>
         <button
@@ -106,7 +101,7 @@ export function NowPlayingBar({ placement = 'viewport' }: Props) {
       </div>
 
       {player.error && (
-        <p className="text-xs text-red-400 absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">{player.error}</p>
+        <p className="absolute -top-6 left-1/2 max-w-full -translate-x-1/2 truncate whitespace-nowrap text-xs text-red-400">{player.error}</p>
       )}
     </div>
   );

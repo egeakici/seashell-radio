@@ -88,11 +88,11 @@
   transition: width 0.22s ease, opacity 0.18s ease, transform 0.22s ease;
 }
 
+/* display is set by the markup (hidden on phones, flex from sm) */
 .volume-control {
   width: 34px;
   min-width: 34px;
   height: 36px;
-  display: flex;
   align-items: center;
   gap: 8px;
   overflow: hidden;
@@ -170,6 +170,23 @@
   background: #f4f3fa;
   cursor: pointer;
   box-shadow: 0 0 0 3px rgba(169, 156, 246, 0.2);
+}
+
+/* ── Touch devices ────────────────────────────────────────────
+   iOS Safari zooms the page when focusing an input under 16px. */
+@media (max-width: 767px) {
+  input[type="text"],
+  input[type="search"],
+  input:not([type]) {
+    font-size: 16px;
+  }
+}
+
+/* Pinch-zoom replaces the map's +/- buttons on touch screens */
+@media (hover: none) and (pointer: coarse) {
+  .leaflet-control-zoom {
+    display: none;
+  }
 }
 
 /* ── Scrollbars ───────────────────────────────────────────────
