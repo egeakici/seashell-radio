@@ -31,7 +31,7 @@ export function NowPlayingBar() {
   return (
     <div
       // Darker than the content panel (canvas) so it never blends into the background
-      className="absolute inset-x-2 bottom-2 flex items-center gap-3 rounded-2xl border border-white/[0.10] bg-[rgba(14,13,19,0.94)] px-3 py-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl sm:inset-x-auto sm:bottom-5 sm:left-1/2 sm:w-[860px] sm:max-w-[calc(100%-2rem)] sm:-translate-x-1/2 sm:gap-5 sm:px-5 sm:py-3.5"
+      className="absolute inset-x-2 bottom-2 flex items-center gap-3 rounded-2xl border border-white/[0.10] bg-[rgba(21,20,28,0.93)] px-3 py-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl sm:inset-x-auto sm:bottom-5 sm:left-1/2 sm:w-[690px] sm:max-w-[calc(100%-2rem)] sm:-translate-x-1/2 sm:gap-5 sm:px-5 sm:py-3.5"
       style={{ zIndex: 1100 }}
     >
       <div className="relative flex-shrink-0">
@@ -67,7 +67,13 @@ export function NowPlayingBar() {
             }
           }}
         >
-          <button onClick={toggleMute} className="volume-button" aria-label="Toggle mute">
+          <button
+            onClick={toggleMute}
+            className="volume-button"
+            aria-label={volume === 0 ? 'Unmute' : 'Mute'}
+            aria-pressed={volume === 0}
+            title={volume === 0 ? 'Unmute' : 'Mute'}
+          >
             <VolumeIcon size={18} />
           </button>
           <input

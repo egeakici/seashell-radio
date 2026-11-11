@@ -84,15 +84,19 @@
   cursor: pointer;
   flex: 0 0 auto;
   opacity: 0;
-  transform: translateX(-4px);
+  transform: translateX(4px);
   transition: width 0.22s ease, opacity 0.18s ease, transform 0.22s ease;
 }
 
-/* display is set by the markup (hidden on phones, flex from sm) */
+/* display is set by the markup (hidden on phones, flex from sm).
+   row-reverse keeps the speaker button pinned on the right: on hover the control
+   grows to the left and the slider opens there, so the button never moves under
+   the cursor and a click reliably toggles mute. */
 .volume-control {
   width: 34px;
   min-width: 34px;
   height: 36px;
+  flex-direction: row-reverse;
   align-items: center;
   gap: 8px;
   overflow: hidden;
