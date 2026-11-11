@@ -1,13 +1,13 @@
 import { useRef, useState, type ReactNode } from 'react';
 import {
-  AudioWaveform, Compass, Disc3, Flame, Guitar, Headphones, Heart, ListMusic,
-  MessageCircle, MicVocal, Music, Music2, Newspaper, Piano, Plus, Trees, type LucideIcon,
+  AudioWaveform, Compass, Disc3, Flame, Guitar, Headphones, Heart, History, ListMusic,
+  MessageCircle, MicVocal, Music, Music2, Newspaper, Piano, Plus, Trees, TrendingUp, type LucideIcon,
 } from 'lucide-react';
 import { useStore } from '../../../core/store/useStore';
 import { CountrySelector } from './CountrySelector';
 
-// null = browse, 'favorites', or a custom list id
-export type DiscoveryView = null | 'favorites' | string;
+// null = browse, a library view, or a custom list id
+export type DiscoveryView = null | 'trending' | 'recent' | 'favorites' | string;
 
 // Class strings are written out in full so Tailwind can see them
 const GENRES: { label: string; value: string; icon: LucideIcon; tile: string }[] = [
@@ -48,6 +48,8 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
     <nav aria-label="Library and filters" className="flex flex-col gap-7">
       <Section title="Library">
         <SidebarItem icon={Compass} label="Browse" active={view === null} onClick={() => go(null)} />
+        <SidebarItem icon={TrendingUp} label="Trending" active={view === 'trending'} onClick={() => go('trending')} />
+        <SidebarItem icon={History} label="Recently Played" active={view === 'recent'} onClick={() => go('recent')} />
         <SidebarItem
           icon={Heart}
           label="Favorites"

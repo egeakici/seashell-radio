@@ -41,8 +41,14 @@ export async function getStationsByCountry(countryCode: string, limit = 150): Pr
   });
 }
 
-export async function getTopStations(limit = 100): Promise<Station[]> {
+// Most clicked in the last 24 hours — what people are listening to right now
+export async function getTrendingStations(limit = 100): Promise<Station[]> {
   return apiFetch<Station[]>(`/stations/topclick/${limit}`);
+}
+
+// Most voted of all time — the default "browse" catalogue
+export async function getTopVotedStations(limit = 100): Promise<Station[]> {
+  return apiFetch<Station[]>(`/stations/topvote/${limit}`);
 }
 
 export async function searchStations(query: string, limit = 60): Promise<Station[]> {

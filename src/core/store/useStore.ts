@@ -43,6 +43,10 @@ interface Store {
   toggleFavorite: (station: Station) => void;
   isFavorite: (stationuuid: string) => boolean;
 
+  // Recently played (persisted, newest first)
+  recentlyPlayed: Station[];
+  clearRecentlyPlayed: () => void;
+
   // Custom lists (persisted)
   lists: StationList[];
   createList: (name: string) => string;
@@ -57,6 +61,8 @@ interface Store {
   activeTag: string | null;
   setActiveTag: (tag: string | null) => void;
 }
+
+const RECENTLY_PLAYED_LIMIT = 50;
 
 const _initialVolume = volumeStorage.load();
 audioEngine.setVolume(_initialVolume);
@@ -95,7 +101,11 @@ export const useStore = create<Store>()(
         try {
           const url = station.url_resolved || station.url;
           await audioEngine.play(url, station.hls === 1);
-          set(s => ({ player: { ...s.player, isPlaying: true, isLoading: false } }));
+          set(s => ({
+            player: { ...s.player, isPlaying: true, isLoading: false },
+            recentlyPlayed: [station, ...s.recentlyPlayed.filter(st => st.stationuuid !== station.stationuuid)]
+              .slice(0, RECENTLY_PLAYED_LIMIT),
+          }));
           registerClick(station.stationuuid);
         } catch (err) {
           // A newer station was selected while this one was still connecting — that call owns the state now
@@ -158,6 +168,9 @@ export const useStore = create<Store>()(
       },
       isFavorite: (stationuuid) => get().favorites.some(f => f.stationuuid === stationuuid),
 
+      recentlyPlayed: [],
+      clearRecentlyPlayed: () => set({ recentlyPlayed: [] }),
+
       lists: [],
       createList: (name) => {
         const id = `list-${Date.now()}`;
@@ -197,6 +210,7 @@ export const useStore = create<Store>()(
       version: 1,
       partialize: (s) => ({
         lists: s.lists,
+        recentlyPlayed: s.recentlyPlayed,
       }),
       // v0 lists stored only station ids; full stations are needed to render a list
       migrate: (persisted) => {

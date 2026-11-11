@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { Station } from '../../../core/types';
 import {
   getStationsByCountry,
-  getTopStations,
+  getTopVotedStations,
   searchStations,
   getStationsByTag,
   getStationsByCountryAndTag,
@@ -43,7 +43,7 @@ export function useStations(): UseStationsResult {
         } else if (activeTag) {
           results = await getStationsByTag(activeTag);
         } else {
-          results = await getTopStations(100);
+          results = await getTopVotedStations(100);
         }
 
         if (!cancelled) {
