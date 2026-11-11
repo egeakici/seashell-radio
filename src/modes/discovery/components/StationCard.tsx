@@ -103,8 +103,8 @@ export function StationCard({ station, queue }: Props) {
           }}
           className={`rounded-full p-2 transition-all sm:p-1.5 ${
             favorite
-              ? 'text-pink-400'
-              : 'text-muted hover:text-pink-400'
+              ? 'text-white'
+              : 'text-muted hover:text-white'
           }`}
           aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
         >

@@ -10,20 +10,19 @@ import { CountrySelector } from './CountrySelector';
 // null = browse, a library view, or a custom list id
 export type DiscoveryView = null | 'trending' | 'recent' | 'favorites' | string;
 
-// Class strings are written out in full so Tailwind can see them
-const GENRES: { label: string; value: string; icon: LucideIcon; tile: string }[] = [
-  { label: 'Pop', value: 'pop', icon: Music2, tile: 'bg-pink-500/15 text-pink-300' },
-  { label: 'Rock', value: 'rock', icon: Guitar, tile: 'bg-red-500/15 text-red-300' },
-  { label: 'Jazz', value: 'jazz', icon: Piano, tile: 'bg-amber-500/15 text-amber-300' },
-  { label: 'Classical', value: 'classical', icon: Music, tile: 'bg-yellow-500/15 text-yellow-200' },
-  { label: 'Electronic', value: 'electronic', icon: AudioWaveform, tile: 'bg-cyan-500/15 text-cyan-300' },
-  { label: 'Hip-Hop', value: 'hiphop', icon: MicVocal, tile: 'bg-violet-500/15 text-violet-300' },
-  { label: 'News', value: 'news', icon: Newspaper, tile: 'bg-sky-500/15 text-sky-300' },
-  { label: 'Talk', value: 'talk', icon: MessageCircle, tile: 'bg-indigo-500/15 text-indigo-300' },
-  { label: 'Folk', value: 'folk', icon: Trees, tile: 'bg-emerald-500/15 text-emerald-300' },
-  { label: 'Dance', value: 'dance', icon: Disc3, tile: 'bg-fuchsia-500/15 text-fuchsia-300' },
-  { label: 'Metal', value: 'metal', icon: Flame, tile: 'bg-orange-500/15 text-orange-300' },
-  { label: 'R&B', value: 'rnb', icon: Headphones, tile: 'bg-rose-500/15 text-rose-300' },
+const GENRES: { label: string; value: string; icon: LucideIcon }[] = [
+  { label: 'Pop', value: 'pop', icon: Music2 },
+  { label: 'Rock', value: 'rock', icon: Guitar },
+  { label: 'Jazz', value: 'jazz', icon: Piano },
+  { label: 'Classical', value: 'classical', icon: Music },
+  { label: 'Electronic', value: 'electronic', icon: AudioWaveform },
+  { label: 'Hip-Hop', value: 'hiphop', icon: MicVocal },
+  { label: 'News', value: 'news', icon: Newspaper },
+  { label: 'Talk', value: 'talk', icon: MessageCircle },
+  { label: 'Folk', value: 'folk', icon: Trees },
+  { label: 'Dance', value: 'dance', icon: Disc3 },
+  { label: 'Metal', value: 'metal', icon: Flame },
+  { label: 'R&B', value: 'rnb', icon: Headphones },
 ];
 
 /** Display name for a genre tag value, e.g. 'hiphop' → 'Hip-Hop' */
@@ -55,12 +54,11 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
   return (
     <nav aria-label="Library and filters" className="flex flex-col gap-7">
       <Section title="Library">
-        <SidebarItem icon={Compass} iconClass="text-accent-glow" label="Browse" active={view === null} onClick={() => go(null)} />
-        <SidebarItem icon={TrendingUp} iconClass="text-amber-300" label="Trending" active={view === 'trending'} onClick={() => go('trending')} />
-        <SidebarItem icon={History} iconClass="text-sky-300" label="Recently Played" active={view === 'recent'} onClick={() => go('recent')} />
+        <SidebarItem icon={Compass} label="Browse" active={view === null} onClick={() => go(null)} />
+        <SidebarItem icon={TrendingUp} label="Trending" active={view === 'trending'} onClick={() => go('trending')} />
+        <SidebarItem icon={History} label="Recently Played" active={view === 'recent'} onClick={() => go('recent')} />
         <SidebarItem
           icon={Heart}
-          iconClass="text-pink-300"
           label="Favorites"
           count={favorites.length}
           active={view === 'favorites'}
@@ -73,7 +71,6 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
           <SidebarItem
             key={list.id}
             icon={ListMusic}
-            iconClass="text-white/80"
             label={list.name}
             count={list.stations.length}
             active={view === list.id}
@@ -90,14 +87,15 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
       <Section title="Genres" hint={selectedCountry ? `In ${selectedCountry.name}` : undefined}>
         {GENRES.map(genre => {
           const Icon = genre.icon;
+          const active = view === null && activeTag === genre.value;
           return (
             <SidebarItem
               key={genre.value}
               label={genre.label}
-              active={view === null && activeTag === genre.value}
+              active={active}
               onClick={() => selectGenre(genre.value)}
               leading={
-                <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg ${genre.tile}`}>
+                <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-colors ${active ? 'bg-white/[0.14] text-white' : 'bg-white/[0.06] text-white/70'}`}>
                   <Icon size={14} strokeWidth={2.2} />
                 </span>
               }
@@ -132,7 +130,7 @@ interface ItemProps {
   count?: number;
 }
 
-function SidebarItem({ label, active, onClick, icon: Icon, iconClass = 'text-accent-glow', leading, count }: ItemProps) {
+function SidebarItem({ label, active, onClick, icon: Icon, iconClass = 'text-white', leading, count }: ItemProps) {
   return (
     <button
       onClick={onClick}

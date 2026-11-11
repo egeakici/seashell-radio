@@ -32,10 +32,18 @@ export default function App() {
         <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between">
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="" width={36} height={36} className="h-9 w-9 flex-shrink-0 select-none" draggable={false} />
-            <span className="text-[16px] font-semibold leading-none tracking-[-0.01em]">
+            {/* Just the shell from the logo: its navy background is the header color, so no box is needed */}
+            <img
+              src="/logo-mark.png"
+              alt=""
+              width={46}
+              height={44}
+              className="h-10 w-auto flex-shrink-0 select-none md:h-11"
+              draggable={false}
+            />
+            <span className="text-[17px] font-semibold leading-none tracking-[-0.01em]">
               <span className="text-white">Radio</span>
-              <span className="text-white/45">Browser</span>
+              <span className="text-accent">Browser</span>
             </span>
           </div>
 
