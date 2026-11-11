@@ -21,17 +21,12 @@ export default function App() {
   useAudioEvents();
   useMediaSession();
 
-  // Driving mode takes full screen
-  if (mode === 'driving') {
-    return <DrivingMode />;
-  }
-
   return (
     <div className="h-dvh flex flex-col bg-base text-white overflow-hidden">
-      <header className="relative z-[1200] flex h-[72px] flex-shrink-0 items-center bg-surface px-6 sm:px-8">
+      <header className="relative z-[1200] flex h-[72px] flex-shrink-0 items-center bg-surface px-4 lg:px-6 xl:px-8">
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
 
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between">
+        <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between">
           {/* Brand */}
           <div className="flex items-center gap-3">
             <div className="relative flex-shrink-0">
@@ -80,10 +75,11 @@ export default function App() {
       <main className="flex-1 overflow-hidden relative">
         {mode === 'discovery' && <DiscoveryMode />}
         {mode === 'map' && <MapMode />}
+        {mode === 'driving' && <DrivingMode />}
       </main>
 
-      {/* Now playing bar — only shown when not in map mode with panel open */}
-      <NowPlayingBar />
+      {/* Discovery renders its own bar centered on the content column; Drive has full-size controls */}
+      {mode === 'map' && <NowPlayingBar />}
     </div>
   );
 }

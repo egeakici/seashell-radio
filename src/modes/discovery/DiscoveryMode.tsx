@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Search, X, Heart, ListMusic, Trash2, SlidersHorizontal } from 'lucide-react';
+import { Search, X, Heart, ListMusic, Trash2, SlidersHorizontal, History } from 'lucide-react';
 import { useStore } from '../../core/store/useStore';
 import type { StationList as CustomList } from '../../core/types';
 import { DiscoverySidebar, type DiscoveryView } from './components/DiscoverySidebar';
-import { StationList } from './components/StationList';
-import { StationCard } from './components/StationCard';
+import { StationList, StationListView, TrendingList } from './components/StationList';
+import { NowPlayingBar } from '../../shared/components/NowPlayingBar';
 
 export function DiscoveryMode() {
   const { searchQuery, setSearchQuery, lists, selectedCountryCode, activeTag } = useStore();
@@ -12,12 +12,12 @@ export function DiscoveryMode() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const activeList = lists.find(l => l.id === view);
-  const showFavorites = view === 'favorites';
   const hasActiveFilter = view !== null || !!selectedCountryCode || !!activeTag;
 
   // Fall back to browsing if the selected list gets deleted
   useEffect(() => {
-    if (view && view !== 'favorites' && !activeList) setView(null);
+    const isLibraryView = view === null || view === 'trending' || view === 'recent' || view === 'favorites';
+    if (!isLibraryView && !activeList) setView(null);
   }, [view, activeList]);
 
   // Close the mobile drawer with Escape
@@ -40,15 +40,15 @@ export function DiscoveryMode() {
   };
 
   return (
-    <div className="h-full lg:px-8">
-      <div className="mx-auto flex h-full max-w-7xl">
+    <div className="h-full px-0 lg:px-6 xl:px-8">
+      <div className="mx-auto flex h-full max-w-[1600px]">
         {/* Sidebar — desktop */}
-        <aside className="hidden w-64 flex-shrink-0 overflow-y-auto border-r border-white/[0.06] py-6 pb-32 pr-5 lg:block">
+        <aside className="hidden w-64 flex-shrink-0 overflow-y-auto border-r border-white/[0.06] py-6 pb-10 pr-5 lg:block xl:w-72">
           <DiscoverySidebar view={view} onViewChange={handleViewChange} />
         </aside>
 
-        {/* Content column */}
-        <section className="flex min-w-0 flex-1 flex-col">
+        {/* Content column — positioned so the now-playing bar centers on it, not on the screen */}
+        <section className="relative flex min-w-0 flex-1 flex-col">
           <div className="flex items-center gap-2 px-4 pb-3 pt-4 lg:px-8 lg:pt-6">
             <button
               onClick={() => setDrawerOpen(true)}
@@ -77,7 +77,11 @@ export function DiscoveryMode() {
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 pb-32 lg:px-8">
-            {showFavorites ? (
+            {view === 'trending' ? (
+              <TrendingList />
+            ) : view === 'recent' ? (
+              <RecentlyPlayedList />
+            ) : view === 'favorites' ? (
               <FavoritesList />
             ) : activeList ? (
               <CustomListView list={activeList} />
@@ -85,6 +89,8 @@ export function DiscoveryMode() {
               <StationList />
             )}
           </div>
+
+          <NowPlayingBar placement="container" />
         </section>
       </div>
 
@@ -111,6 +117,49 @@ export function DiscoveryMode() {
   );
 }
 
+function EmptyState({ icon: Icon, title, hint }: { icon: typeof Heart; title: string; hint: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 py-16">
+      <Icon size={32} className="text-muted" />
+      <p className="text-sm text-muted">{title}</p>
+      <p className="text-xs text-muted">{hint}</p>
+    </div>
+  );
+}
+
+function RecentlyPlayedList() {
+  const { recentlyPlayed, clearRecentlyPlayed } = useStore();
+
+  return (
+    <StationListView
+      title="Recently Played"
+      stations={recentlyPlayed}
+      actions={recentlyPlayed.length > 0 && (
+        <button
+          onClick={clearRecentlyPlayed}
+          className="flex items-center gap-1 text-xs text-muted transition-colors hover:text-red-400"
+        >
+          <Trash2 size={13} />
+          Clear
+        </button>
+      )}
+      empty={<EmptyState icon={History} title="Nothing played yet." hint="Stations you listen to will show up here." />}
+    />
+  );
+}
+
+function FavoritesList() {
+  const { favorites } = useStore();
+
+  return (
+    <StationListView
+      title="Favorites"
+      stations={favorites}
+      empty={<EmptyState icon={Heart} title="No favorites yet." hint="Tap the heart icon on a station to add it to favorites." />}
+    />
+  );
+}
+
 function CustomListView({ list }: { list: CustomList }) {
   const { deleteList } = useStore();
 
@@ -119,57 +168,20 @@ function CustomListView({ list }: { list: CustomList }) {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-3 gap-3">
-        <h2 className="text-sm font-semibold text-muted uppercase tracking-wide truncate">{list.name}</h2>
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <span className="text-xs text-muted">{list.stations.length} stations</span>
-          <button
-            onClick={handleDelete}
-            className="flex items-center gap-1 text-xs text-muted hover:text-red-400 transition-colors"
-            aria-label={`Delete list ${list.name}`}
-          >
-            <Trash2 size={13} />
-            Delete
-          </button>
-        </div>
-      </div>
-
-      {list.stations.length ? (
-        <div className="flex flex-col gap-1">
-          {list.stations.map(station => (
-            <StationCard key={station.stationuuid} station={station} queue={list.stations} />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-16 gap-3">
-          <ListMusic size={32} className="text-muted" />
-          <p className="text-muted text-sm">This list is empty.</p>
-          <p className="text-muted text-xs">Use the list icon on a station card to add it here.</p>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function FavoritesList() {
-  const { favorites } = useStore();
-
-  if (!favorites.length) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 gap-3">
-        <Heart size={32} className="text-muted" />
-        <p className="text-muted text-sm">No favorites yet.</p>
-        <p className="text-muted text-xs">Tap the heart icon on a station card to add it to favorites.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-1">
-      {favorites.map(station => (
-        <StationCard key={station.stationuuid} station={station} queue={favorites} />
-      ))}
-    </div>
+    <StationListView
+      title={list.name}
+      stations={list.stations}
+      actions={
+        <button
+          onClick={handleDelete}
+          className="flex items-center gap-1 text-xs text-muted transition-colors hover:text-red-400"
+          aria-label={`Delete list ${list.name}`}
+        >
+          <Trash2 size={13} />
+          Delete
+        </button>
+      }
+      empty={<EmptyState icon={ListMusic} title="This list is empty." hint="Use the list icon on a station card to add it here." />}
+    />
   );
 }

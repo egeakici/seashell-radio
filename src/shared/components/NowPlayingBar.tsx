@@ -1,11 +1,19 @@
 import { useState } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Car, Volume1, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Heart, Volume1, Volume2, VolumeX } from 'lucide-react';
 import { useStore } from '../../core/store/useStore';
 import { StationFavicon } from './StationFavicon';
 import { LoadingSpinner } from './LoadingSpinner';
 
-export function NowPlayingBar() {
-  const { player, pauseResume, playNext, playPrev, setMode, mode, mapPanelOpen, volume, setVolume } = useStore();
+interface Props {
+  /**
+   * 'viewport' centers the bar on the screen (map mode).
+   * 'container' centers it inside the nearest positioned parent (the discovery content column).
+   */
+  placement?: 'viewport' | 'container';
+}
+
+export function NowPlayingBar({ placement = 'viewport' }: Props) {
+  const { player, pauseResume, playNext, playPrev, mode, mapPanelOpen, volume, setVolume, toggleFavorite, isFavorite } = useStore();
   const [prevVol, setPrevVol] = useState(volume > 0 ? volume : 0.8);
 
   const toggleMute = () => {
@@ -23,10 +31,12 @@ export function NowPlayingBar() {
   if (!currentStation) return null;
   if (mode === 'map' && mapPanelOpen) return null;
 
+  const favorite = isFavorite(currentStation.stationuuid);
+
   return (
     <div
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 rounded-2xl px-5 py-4 flex items-center gap-4"
-      style={{ zIndex: 1100, background: 'rgba(8, 8, 18, 0.92)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', border: '1px solid rgba(129,140,248,0.2)', boxShadow: '0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(129,140,248,0.05)', width: '520px', maxWidth: 'calc(100vw - 2rem)' }}
+      className={`${placement === 'viewport' ? 'fixed' : 'absolute'} bottom-6 left-1/2 -translate-x-1/2 rounded-2xl px-5 py-4 flex items-center gap-4`}
+      style={{ zIndex: 1100, background: 'rgba(8, 8, 18, 0.92)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', border: '1px solid rgba(129,140,248,0.2)', boxShadow: '0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(129,140,248,0.05)', width: '520px', maxWidth: placement === 'viewport' ? 'calc(100vw - 2rem)' : 'calc(100% - 2rem)' }}
     >
       <div className="relative flex-shrink-0">
         <StationFavicon src={currentStation.favicon} name={currentStation.name} size={48} />
@@ -86,8 +96,13 @@ export function NowPlayingBar() {
         <button onClick={() => { void playNext(); }} className="p-2 text-muted hover:text-white transition-colors" aria-label="Next station">
           <SkipForward size={18} />
         </button>
-        <button onClick={() => setMode('driving')} className="p-2 text-muted hover:text-accent transition-colors" aria-label="Switch to driving mode">
-          <Car size={18} />
+        <button
+          onClick={() => toggleFavorite(currentStation)}
+          className={`p-2 transition-colors ${favorite ? 'text-pink-400 hover:text-pink-300' : 'text-muted hover:text-white'}`}
+          aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
+          aria-pressed={favorite}
+        >
+          <Heart size={18} fill={favorite ? 'currentColor' : 'none'} />
         </button>
       </div>
 
