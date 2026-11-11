@@ -7,8 +7,9 @@ import { countryCodeToFlag } from '../../../shared/utils/countryFlag';
 
 // Lives inside the scrolling sidebar, so the country list expands in place instead of
 // floating as an absolutely positioned dropdown (which the scroll container would clip).
+// The selected genre is kept, so country and genre combine (e.g. pop stations in Türkiye).
 export function CountrySelector({ onSelect }: { onSelect?: () => void }) {
-  const { selectedCountryCode, setSelectedCountryCode, setActiveTag } = useStore();
+  const { selectedCountryCode, setSelectedCountryCode } = useStore();
   const { countries, isLoading } = useCountries();
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -23,7 +24,6 @@ export function CountrySelector({ onSelect }: { onSelect?: () => void }) {
 
   const handleSelect = (code: string | null) => {
     setSelectedCountryCode(code);
-    setActiveTag(null);
     setIsOpen(false);
     setSearchQuery('');
     onSelect?.();
@@ -39,8 +39,8 @@ export function CountrySelector({ onSelect }: { onSelect?: () => void }) {
             selectedCountryCode ? 'pr-9' : 'pr-3'
           } ${
             isOpen
-              ? 'border-accent/40 bg-white/[0.04]'
-              : 'border-white/[0.08] bg-white/[0.025] hover:border-white/[0.16]'
+              ? 'border-accent/40 bg-white/[0.06]'
+              : 'border-white/[0.06] bg-white/[0.04] hover:border-white/[0.12] hover:bg-white/[0.06]'
           }`}
         >
           {selectedCountry ? (
@@ -75,9 +75,9 @@ export function CountrySelector({ onSelect }: { onSelect?: () => void }) {
       </div>
 
       {isOpen && (
-        <div className="mt-2 overflow-hidden rounded-xl border border-white/[0.08] bg-surface-card/60">
+        <div className="mt-2 overflow-hidden rounded-xl border border-white/[0.06] bg-surface">
           <div className="border-b border-white/[0.06] p-2">
-            <div className="flex items-center gap-2 rounded-lg bg-base/60 px-2.5 py-1.5">
+            <div className="flex items-center gap-2 rounded-lg bg-white/[0.05] px-2.5 py-1.5">
               <Search size={13} className="flex-shrink-0 text-muted" />
               <input
                 type="text"
@@ -110,7 +110,7 @@ export function CountrySelector({ onSelect }: { onSelect?: () => void }) {
                   key={country.iso_3166_1}
                   onClick={() => handleSelect(country.iso_3166_1)}
                   className={`flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-white/[0.05] ${
-                    selectedCountryCode === country.iso_3166_1 ? 'bg-accent/[0.12]' : ''
+                    selectedCountryCode === country.iso_3166_1 ? 'bg-white/[0.07]' : ''
                   }`}
                 >
                   <span className="w-5 text-center text-base leading-none">{countryCodeToFlag(country.iso_3166_1)}</span>

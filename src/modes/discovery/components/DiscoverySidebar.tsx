@@ -4,6 +4,7 @@ import {
   MessageCircle, MicVocal, Music, Music2, Newspaper, Piano, Plus, Trees, TrendingUp, type LucideIcon,
 } from 'lucide-react';
 import { useStore } from '../../../core/store/useStore';
+import { useCountries } from '../hooks/useCountries';
 import { CountrySelector } from './CountrySelector';
 
 // null = browse, a library view, or a custom list id
@@ -25,13 +26,20 @@ const GENRES: { label: string; value: string; icon: LucideIcon; tile: string }[]
   { label: 'R&B', value: 'rnb', icon: Headphones, tile: 'bg-rose-500/15 text-rose-300' },
 ];
 
+/** Display name for a genre tag value, e.g. 'hiphop' → 'Hip-Hop' */
+export function genreLabel(value: string): string {
+  return GENRES.find(g => g.value === value)?.label ?? value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 interface Props {
   view: DiscoveryView;
   onViewChange: (view: DiscoveryView) => void;
 }
 
 export function DiscoverySidebar({ view, onViewChange }: Props) {
-  const { favorites, lists, activeTag, setActiveTag, setSearchQuery } = useStore();
+  const { favorites, lists, activeTag, setActiveTag, setSearchQuery, selectedCountryCode } = useStore();
+  const { countries } = useCountries();
+  const selectedCountry = countries.find(c => c.iso_3166_1 === selectedCountryCode);
 
   // Every sidebar choice leaves search mode so the selection is actually shown
   const go = (next: DiscoveryView) => {
@@ -47,11 +55,12 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
   return (
     <nav aria-label="Library and filters" className="flex flex-col gap-7">
       <Section title="Library">
-        <SidebarItem icon={Compass} label="Browse" active={view === null} onClick={() => go(null)} />
-        <SidebarItem icon={TrendingUp} label="Trending" active={view === 'trending'} onClick={() => go('trending')} />
-        <SidebarItem icon={History} label="Recently Played" active={view === 'recent'} onClick={() => go('recent')} />
+        <SidebarItem icon={Compass} iconClass="text-accent-glow" label="Browse" active={view === null} onClick={() => go(null)} />
+        <SidebarItem icon={TrendingUp} iconClass="text-amber-300" label="Trending" active={view === 'trending'} onClick={() => go('trending')} />
+        <SidebarItem icon={History} iconClass="text-sky-300" label="Recently Played" active={view === 'recent'} onClick={() => go('recent')} />
         <SidebarItem
           icon={Heart}
+          iconClass="text-pink-300"
           label="Favorites"
           count={favorites.length}
           active={view === 'favorites'}
@@ -64,6 +73,7 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
           <SidebarItem
             key={list.id}
             icon={ListMusic}
+            iconClass="text-white/80"
             label={list.name}
             count={list.stations.length}
             active={view === list.id}
@@ -77,7 +87,7 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
         <CountrySelector onSelect={() => go(null)} />
       </Section>
 
-      <Section title="Genres">
+      <Section title="Genres" hint={selectedCountry ? `In ${selectedCountry.name}` : undefined}>
         {GENRES.map(genre => {
           const Icon = genre.icon;
           return (
@@ -99,10 +109,13 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
   return (
     <section>
-      <h3 className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/35">{title}</h3>
+      <div className="mb-2 flex items-baseline justify-between gap-2 px-3">
+        <h3 className="text-[11px] font-semibold uppercase tracking-[0.14em] text-white/35">{title}</h3>
+        {hint && <span className="truncate text-[11px] font-medium text-live/80">{hint}</span>}
+      </div>
       <div className="flex flex-col gap-0.5">{children}</div>
     </section>
   );
@@ -113,18 +126,20 @@ interface ItemProps {
   active: boolean;
   onClick: () => void;
   icon?: LucideIcon;
+  /** Icon color while the item is active; inactive icons stay neutral */
+  iconClass?: string;
   leading?: ReactNode;
   count?: number;
 }
 
-function SidebarItem({ label, active, onClick, icon: Icon, leading, count }: ItemProps) {
+function SidebarItem({ label, active, onClick, icon: Icon, iconClass = 'text-accent-glow', leading, count }: ItemProps) {
   return (
     <button
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
       className={`group relative flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-[13.5px] font-medium transition-colors ${
         active
-          ? 'bg-accent/[0.14] text-white'
+          ? 'bg-white/[0.07] text-white'
           : 'text-white/60 hover:bg-white/[0.04] hover:text-white'
       }`}
     >
@@ -132,13 +147,15 @@ function SidebarItem({ label, active, onClick, icon: Icon, leading, count }: Ite
       {leading ?? (Icon && (
         <Icon
           size={17}
-          strokeWidth={active ? 2.3 : 2}
-          className={active ? 'text-accent-glow' : 'text-white/45 group-hover:text-white/70'}
+          strokeWidth={2}
+          className={active ? iconClass : 'text-white/40 transition-colors group-hover:text-white/70'}
         />
       ))}
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {count != null && count > 0 && (
-        <span className={`text-xs tabular-nums ${active ? 'text-accent-glow' : 'text-white/30'}`}>{count}</span>
+        <span className={`rounded-md px-1.5 py-px text-[11px] tabular-nums ${active ? 'bg-white/[0.08] text-white/80' : 'text-white/30'}`}>
+          {count}
+        </span>
       )}
     </button>
   );
@@ -171,7 +188,7 @@ function NewListButton({ onCreated }: { onCreated: (id: string) => void }) {
           if (e.key === 'Escape') cancelled.current = true;
           if (e.key === 'Enter' || e.key === 'Escape') e.currentTarget.blur();
         }}
-        className="w-full rounded-xl border border-accent/60 bg-surface-card px-3 py-2 text-[13.5px] text-white placeholder-muted outline-none"
+        className="w-full rounded-xl border border-accent/50 bg-white/[0.05] px-3 py-2 text-[13.5px] text-white placeholder-muted outline-none"
         maxLength={40}
         autoFocus
       />

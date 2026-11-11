@@ -1,6 +1,8 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { useStations } from '../hooks/useStations';
+import { useCountries } from '../hooks/useCountries';
+import { genreLabel } from './DiscoverySidebar';
 import { StationCard } from './StationCard';
 import { LoadingSpinner } from '../../../shared/components/LoadingSpinner';
 import { useStore } from '../../../core/store/useStore';
@@ -9,6 +11,8 @@ import type { Station } from '../../../core/types';
 
 interface ViewProps {
   title: string;
+  /** Context shown before the station count, e.g. the country */
+  subtitle?: string;
   stations: Station[];
   isLoading?: boolean;
   error?: string | null;
@@ -20,7 +24,7 @@ interface ViewProps {
 }
 
 // Shared layout for every station list: header, loading/error/empty states, cards
-export function StationListView({ title, stations, isLoading, error, onRetry, empty, actions }: ViewProps) {
+export function StationListView({ title, subtitle, stations, isLoading, error, onRetry, empty, actions }: ViewProps) {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-4">
@@ -49,12 +53,15 @@ export function StationListView({ title, stations, isLoading, error, onRetry, em
 
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <h2 className="truncate text-sm font-semibold uppercase tracking-wide text-muted">{title}</h2>
-        <div className="flex flex-shrink-0 items-center gap-3">
-          <span className="text-xs text-muted">{stations.length} stations</span>
-          {actions}
+      <div className="mb-4 flex items-end justify-between gap-3 px-2">
+        <div className="min-w-0">
+          <h2 className="truncate text-xl font-semibold tracking-[-0.01em] text-white">{title}</h2>
+          <p className="mt-0.5 text-[13px] text-muted">
+            {subtitle && <>{subtitle} · </>}
+            {stations.length} stations
+          </p>
         </div>
+        {actions && <div className="flex flex-shrink-0 items-center gap-3 pb-0.5">{actions}</div>}
       </div>
 
       {stations.length ? (
@@ -78,18 +85,34 @@ export function StationListView({ title, stations, isLoading, error, onRetry, em
 export function StationList() {
   const { stations, isLoading, error, refresh } = useStations();
   const { selectedCountryCode, searchQuery, activeTag } = useStore();
+  const { countries } = useCountries();
+  const countryName = countries.find(c => c.iso_3166_1 === selectedCountryCode)?.name ?? selectedCountryCode;
 
-  const title = searchQuery.trim()
-    ? `Results for "${searchQuery}"`
-    : selectedCountryCode && activeTag
-    ? `${selectedCountryCode} · ${activeTag}`
-    : selectedCountryCode
-    ? `${selectedCountryCode} stations`
-    : activeTag
-    ? `${activeTag} stations`
-    : 'Top Rated Worldwide';
+  let title: string;
+  let subtitle: string | undefined;
+  if (searchQuery.trim()) {
+    title = `Results for "${searchQuery.trim()}"`;
+  } else if (activeTag) {
+    title = genreLabel(activeTag);
+    subtitle = countryName ?? 'Worldwide';
+  } else if (countryName) {
+    title = countryName;
+    subtitle = 'Most popular';
+  } else {
+    title = 'Top Rated';
+    subtitle = 'Worldwide';
+  }
 
-  return <StationListView title={title} stations={stations} isLoading={isLoading} error={error} onRetry={refresh} />;
+  return (
+    <StationListView
+      title={title}
+      subtitle={subtitle}
+      stations={stations}
+      isLoading={isLoading}
+      error={error}
+      onRetry={refresh}
+    />
+  );
 }
 
 // Trending: most listened stations over the last 24 hours
@@ -112,7 +135,8 @@ export function TrendingList() {
 
   return (
     <StationListView
-      title="Trending · Last 24 hours"
+      title="Trending"
+      subtitle="Most listened in the last 24 hours"
       stations={stations}
       isLoading={isLoading}
       error={error}
