@@ -83,7 +83,7 @@ export function StationPanel({ country, onClose }: Props) {
     // Slides up from the bottom of the map area (stays above the phone tab bar)
     <div
       ref={panelRef}
-      className="absolute bottom-0 left-0 right-0 flex flex-col rounded-t-2xl border-t border-white/[0.06] bg-base shadow-2xl"
+      className="absolute bottom-0 left-0 right-0 flex flex-col rounded-t-2xl border-t border-white/[0.06] bg-canvas shadow-2xl"
       style={{ zIndex: 1000, height: `${height}%` }}
     >
 

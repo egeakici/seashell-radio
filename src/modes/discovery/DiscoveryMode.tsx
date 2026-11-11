@@ -48,7 +48,7 @@ export function DiscoveryMode() {
         </aside>
 
         {/* Content panel — positioned so the now-playing bar centers on it, not on the screen */}
-        <section className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-base lg:rounded-2xl lg:border lg:border-white/[0.04]">
+        <section className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-canvas lg:rounded-2xl lg:border lg:border-white/[0.04]">
           {/* Soft tint at the top of the panel */}
           <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-accent/[0.07] via-accent/[0.02] to-transparent" aria-hidden />
 

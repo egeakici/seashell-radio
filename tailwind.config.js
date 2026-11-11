@@ -4,10 +4,11 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Layering, darkest → lightest: shell (header, gaps) → panel (sidebar) → base (content)
+        // Layering, darkest → lightest: shell (header, gaps) → panel (sidebar) → canvas (content).
+        // Note: don't name a color "base" — Tailwind's text-base (font size) would also pick it up as a color.
         shell: '#0f0e14',
         panel: '#17161e',
-        base: '#1c1b24',
+        canvas: '#1c1b24',
         // Raised elements on top of panels: menus, drawers, inputs, cards
         surface: {
           DEFAULT: '#23222c',
