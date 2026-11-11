@@ -1,171 +1,113 @@
-import { useEffect, useRef, useState } from 'react';
-import { Search, X, Heart, ListMusic, Plus, Trash2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Search, X, Heart, ListMusic, Trash2, SlidersHorizontal } from 'lucide-react';
 import { useStore } from '../../core/store/useStore';
 import type { StationList as CustomList } from '../../core/types';
-import { CountrySelector } from './components/CountrySelector';
-import { FiltersBar } from './components/FiltersBar';
+import { DiscoverySidebar, type DiscoveryView } from './components/DiscoverySidebar';
 import { StationList } from './components/StationList';
 import { StationCard } from './components/StationCard';
 
-// null = browse, 'favorites', or a custom list id
-type View = null | 'favorites' | string;
-
 export function DiscoveryMode() {
-  const { searchQuery, setSearchQuery, favorites, lists } = useStore();
-  const [view, setView] = useState<View>(null);
+  const { searchQuery, setSearchQuery, lists, selectedCountryCode, activeTag } = useStore();
+  const [view, setView] = useState<DiscoveryView>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const activeList = lists.find(l => l.id === view);
   const showFavorites = view === 'favorites';
+  const hasActiveFilter = view !== null || !!selectedCountryCode || !!activeTag;
 
   // Fall back to browsing if the selected list gets deleted
   useEffect(() => {
     if (view && view !== 'favorites' && !activeList) setView(null);
   }, [view, activeList]);
 
-  const toggleView = (next: View) => setView(v => (v === next ? null : next));
+  // Close the mobile drawer with Escape
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setDrawerOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [drawerOpen]);
+
+  const handleSearch = (q: string) => {
+    setSearchQuery(q);
+    // Search results replace whatever library view was open
+    if (q && view !== null) setView(null);
+  };
+
+  const handleViewChange = (next: DiscoveryView) => {
+    setView(next);
+    setDrawerOpen(false);
+  };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Search bar */}
-      <div className="px-4 pt-4 pb-3">
-        <div className="flex items-center gap-2 bg-surface-card border border-surface-border rounded-xl px-3 py-2.5">
-          <Search size={16} className="text-muted flex-shrink-0" />
-          <input
-            type="text"
-            placeholder="Search stations..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="bg-transparent text-sm text-white placeholder-muted outline-none flex-1"
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-muted hover:text-white">
-              <X size={14} />
+    <div className="h-full lg:px-8">
+      <div className="mx-auto flex h-full max-w-7xl">
+        {/* Sidebar — desktop */}
+        <aside className="hidden w-64 flex-shrink-0 overflow-y-auto border-r border-white/[0.06] py-6 pb-32 pr-5 lg:block">
+          <DiscoverySidebar view={view} onViewChange={handleViewChange} />
+        </aside>
+
+        {/* Content column */}
+        <section className="flex min-w-0 flex-1 flex-col">
+          <div className="flex items-center gap-2 px-4 pb-3 pt-4 lg:px-8 lg:pt-6">
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="relative flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.025] text-white/60 transition-colors hover:text-white lg:hidden"
+              aria-label="Open library and filters"
+            >
+              <SlidersHorizontal size={17} />
+              {hasActiveFilter && <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />}
             </button>
-          )}
-        </div>
+
+            <div className="flex flex-1 items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.025] px-3.5 py-2.5 transition-colors focus-within:border-accent/40 focus-within:bg-white/[0.04]">
+              <Search size={16} className="flex-shrink-0 text-white/40" />
+              <input
+                type="text"
+                placeholder="Search stations..."
+                value={searchQuery}
+                onChange={e => handleSearch(e.target.value)}
+                className="flex-1 bg-transparent text-sm text-white placeholder-white/35 outline-none"
+              />
+              {searchQuery && (
+                <button onClick={() => handleSearch('')} className="text-white/40 hover:text-white" aria-label="Clear search">
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-4 pb-32 lg:px-8">
+            {showFavorites ? (
+              <FavoritesList />
+            ) : activeList ? (
+              <CustomListView list={activeList} />
+            ) : (
+              <StationList />
+            )}
+          </div>
+        </section>
       </div>
 
-      {/* Filters row */}
-      {!searchQuery && (
-        <div className="px-4 pb-3 flex items-center gap-3">
-          <CountrySelector />
-          {/* Separate scroller so the country dropdown isn't clipped */}
-          <div className="flex items-center gap-2 min-w-0 flex-1 overflow-x-auto scrollbar-hide">
-            <button
-              onClick={() => toggleView('favorites')}
-              className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors border ${
-                showFavorites
-                  ? 'bg-red-500/20 text-red-400 border-red-500/30'
-                  : 'bg-surface-card text-muted border-surface-border hover:text-white'
-              }`}
-            >
-              <Heart size={13} fill={showFavorites ? 'currentColor' : 'none'} />
-              Favorites {favorites.length > 0 && `(${favorites.length})`}
-            </button>
-
-            <div className="flex-shrink-0 w-px h-5 bg-surface-border" aria-hidden />
-
-            <NewListButton onCreated={setView} />
-
-            {lists.map(list => (
-              <ListChip
-                key={list.id}
-                list={list}
-                active={view === list.id}
-                onClick={() => toggleView(list.id)}
-              />
-            ))}
+      {/* Sidebar — mobile drawer */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-[1300] lg:hidden" role="dialog" aria-modal="true" aria-label="Library and filters">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDrawerOpen(false)} />
+          <div className="animate-slide-in-left absolute inset-y-0 left-0 w-[290px] max-w-[85vw] overflow-y-auto border-r border-white/[0.08] bg-surface px-4 pb-10 pt-5">
+            <div className="mb-5 flex items-center justify-between px-3">
+              <span className="text-sm font-semibold text-white">Library & Filters</span>
+              <button
+                onClick={() => setDrawerOpen(false)}
+                className="rounded-lg p-1.5 text-white/50 hover:bg-white/[0.06] hover:text-white"
+                aria-label="Close"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <DiscoverySidebar view={view} onViewChange={handleViewChange} />
           </div>
         </div>
       )}
-
-      {/* Tag filters */}
-      {!searchQuery && !view && (
-        <div className="px-4 pb-3">
-          <FiltersBar />
-        </div>
-      )}
-
-      {/* Station list */}
-      <div className="flex-1 overflow-y-auto px-4 pb-32">
-        {showFavorites ? (
-          <FavoritesList />
-        ) : activeList ? (
-          <CustomListView list={activeList} />
-        ) : (
-          <StationList />
-        )}
-      </div>
     </div>
-  );
-}
-
-function ListChip({ list, active, onClick }: { list: CustomList; active: boolean; onClick: () => void }) {
-  const ref = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (active) ref.current?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
-  }, [active]);
-
-  return (
-    <button
-      ref={ref}
-      onClick={onClick}
-      className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors border ${
-        active
-          ? 'bg-accent/20 text-accent-glow border-accent/30'
-          : 'bg-surface-card text-muted border-surface-border hover:text-white'
-      }`}
-    >
-      <ListMusic size={13} />
-      <span className="max-w-[140px] truncate">{list.name}</span>
-      {list.stations.length > 0 && `(${list.stations.length})`}
-    </button>
-  );
-}
-
-function NewListButton({ onCreated }: { onCreated: (id: string) => void }) {
-  const { createList } = useStore();
-  const [editing, setEditing] = useState(false);
-  const [name, setName] = useState('');
-  const cancelled = useRef(false);
-
-  // Enter and Escape both blur, so creation only ever runs here
-  const finish = () => {
-    const trimmed = name.trim();
-    if (trimmed && !cancelled.current) onCreated(createList(trimmed));
-    cancelled.current = false;
-    setName('');
-    setEditing(false);
-  };
-
-  if (editing) {
-    return (
-      <input
-        type="text"
-        placeholder="List name..."
-        value={name}
-        onChange={e => setName(e.target.value)}
-        onBlur={finish}
-        onKeyDown={e => {
-          if (e.key === 'Escape') cancelled.current = true;
-          if (e.key === 'Enter' || e.key === 'Escape') e.currentTarget.blur();
-        }}
-        className="flex-shrink-0 w-36 px-3 py-2 rounded-xl text-xs bg-surface-card text-white placeholder-muted border border-accent outline-none"
-        maxLength={40}
-        autoFocus
-      />
-    );
-  }
-
-  return (
-    <button
-      onClick={() => setEditing(true)}
-      className="flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors border border-dashed border-surface-border text-muted hover:text-white hover:border-accent"
-    >
-      <Plus size={13} />
-      New list
-    </button>
   );
 }
 
