@@ -1,25 +1,34 @@
 import { useEffect } from 'react';
 import { useStore } from '../../core/store/useStore';
 
-// Sync the MediaSession API with player state so car controls can drive playback.
+// Sync the MediaSession API with player state so car controls can drive playback,
+// and lock screens / car displays show the station and, when known, the current song.
 export function useMediaSession() {
-  const { player, pauseResume, playNext, playPrev } = useStore();
+  const { player, pauseResume, playNext, playPrev, nowPlaying } = useStore();
   const { currentStation, isPlaying } = player;
 
   useEffect(() => {
     if (!('mediaSession' in navigator)) return;
+    if (!currentStation) {
+      navigator.mediaSession.metadata = null;
+      return;
+    }
 
-    navigator.mediaSession.metadata = currentStation
-      ? new MediaMetadata({
-          title: currentStation.name,
-          artist: currentStation.country || '',
-          album: 'Radio Browser - Live Radio',
-          artwork: currentStation.favicon
-            ? [{ src: currentStation.favicon, sizes: '512x512', type: 'image/png' }]
-            : [],
-        })
-      : null;
-  }, [currentStation]);
+    const artwork = currentStation.favicon
+      ? [{ src: currentStation.favicon, sizes: '512x512', type: 'image/png' }]
+      : [];
+
+    navigator.mediaSession.metadata = new MediaMetadata(
+      nowPlaying?.kind === 'song'
+        ? { title: nowPlaying.title, artist: nowPlaying.artist, album: currentStation.name, artwork }
+        : {
+            title: currentStation.name,
+            artist: nowPlaying?.kind === 'text' ? nowPlaying.text : currentStation.country || '',
+            album: 'Radio Browser - Live Radio',
+            artwork,
+          },
+    );
+  }, [currentStation, nowPlaying]);
 
   useEffect(() => {
     if (!('mediaSession' in navigator)) return;

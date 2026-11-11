@@ -29,3 +29,8 @@ export interface StationList {
   name: string;
   stations: Station[];
 }
+
+/** What a station reports it is playing right now (from the stream's ICY metadata) */
+export type TrackInfo =
+  | { kind: 'song'; artist: string; title: string }
+  | { kind: 'text'; text: string };

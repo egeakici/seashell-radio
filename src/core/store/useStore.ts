@@ -4,7 +4,7 @@ import { audioEngine, PlaybackAbortedError } from '../audio/audioEngine';
 import { registerClick } from '../api/radioBrowser';
 import { favoritesStorage } from '../storage/favoritesStorage';
 import { volumeStorage } from '../storage/volumeStorage';
-import type { Station, AppMode, StationList } from '../types';
+import type { Station, AppMode, StationList, TrackInfo } from '../types';
 
 interface PlayerSlice {
   currentStation: Station | null;
@@ -26,6 +26,10 @@ interface Store {
   player: PlayerSlice;
   playStation: (station: Station, newQueue?: Station[]) => Promise<void>;
   pauseResume: () => Promise<void>;
+
+  // Now playing track for the current station (null when unknown / not announced)
+  nowPlaying: TrackInfo | null;
+  setNowPlaying: (track: TrackInfo | null) => void;
 
   // Queue (driving mode navigation)
   queue: Station[];
@@ -91,9 +95,14 @@ export const useStore = create<Store>()(
         error: null,
       },
 
+      nowPlaying: null,
+      setNowPlaying: (track) => set({ nowPlaying: track }),
+
       playStation: async (station, newQueue) => {
         set(s => ({
           player: { ...s.player, currentStation: station, isLoading: true, error: null },
+          // Drop the previous station's track right away
+          ...(s.player.currentStation?.stationuuid !== station.stationuuid ? { nowPlaying: null } : {}),
           ...(newQueue != null ? { queue: newQueue } : {}),
           ...(newQueue != null ? { queueIndex: newQueue.findIndex(st => st.stationuuid === station.stationuuid) } : {}),
         }));

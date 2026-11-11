@@ -4,6 +4,7 @@ import { MapMode } from './modes/map/MapMode';
 import { DrivingMode } from './modes/driving/DrivingMode';
 import { useMediaSession } from './shared/hooks/useMediaSession';
 import { useAudioEvents } from './shared/hooks/useAudioEvents';
+import { useNowPlaying } from './shared/hooks/useNowPlaying';
 import { Radio, Car, Compass, Map } from 'lucide-react';
 import type { AppMode } from './core/types';
 
@@ -19,6 +20,7 @@ export default function App() {
   // Global hooks — mount once, always active regardless of mode
   useAudioEvents();
   useMediaSession();
+  useNowPlaying();
 
   return (
     <div className="h-dvh flex flex-col bg-shell text-white overflow-hidden">

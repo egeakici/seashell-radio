@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Heart, Wifi, Compass } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Heart, Wifi, Compass, Music2 } from 'lucide-react';
 import { useStore } from '../../core/store/useStore';
 import { useSwipe } from '../../shared/hooks/useSwipe';
 import { StationFavicon } from '../../shared/components/StationFavicon';
@@ -22,6 +22,7 @@ export function DrivingMode() {
     queueIndex,
     favorites,
     setMode,
+    nowPlaying,
   } = useStore();
 
   const { currentStation, isPlaying, isLoading, error } = player;
@@ -56,7 +57,7 @@ export function DrivingMode() {
       <div className="mx-auto flex h-full max-w-[1624px] select-none gap-3">
         {/* Now playing — swipe left/right to change station */}
         <section
-          className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-base lg:rounded-2xl lg:border lg:border-white/[0.04]"
+          className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-canvas lg:rounded-2xl lg:border lg:border-white/[0.04]"
           style={{ backgroundImage: 'radial-gradient(ellipse at 50% 15%, rgba(169, 156, 246, 0.10) 0%, transparent 60%)' }}
           {...swipeHandlers}
         >
@@ -98,7 +99,26 @@ export function DrivingMode() {
                     {countryCodeToFlag(currentStation.countrycode)} {currentStation.country}
                   </p>
                 )}
-                {currentStation.tags && (
+                {nowPlaying ? (
+                  // Keyed so the card fades in again whenever the track changes
+                  <div
+                    key={nowPlaying.kind === 'song' ? nowPlaying.artist + nowPlaying.title : nowPlaying.text}
+                    className="animate-fade-in mx-auto !mt-5 max-w-md rounded-2xl border border-white/[0.06] bg-white/[0.04] px-5 py-3"
+                  >
+                    <p className="flex items-center justify-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-live">
+                      <Music2 size={12} aria-hidden />
+                      {nowPlaying.kind === 'song' ? 'Now playing' : 'On air'}
+                    </p>
+                    {nowPlaying.kind === 'song' ? (
+                      <>
+                        <p className="mt-1 truncate text-lg font-semibold text-white lg:text-xl">{nowPlaying.title}</p>
+                        <p className="truncate text-sm text-white/55 lg:text-base">{nowPlaying.artist}</p>
+                      </>
+                    ) : (
+                      <p className="mt-1 truncate text-base text-white/80">{nowPlaying.text}</p>
+                    )}
+                  </div>
+                ) : currentStation.tags && (
                   <p className="text-sm text-white/30">
                     {currentStation.tags.split(',').slice(0, 3).map(t => t.trim()).filter(Boolean).join(' · ')}
                   </p>

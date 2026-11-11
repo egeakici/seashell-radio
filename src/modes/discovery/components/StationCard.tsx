@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
-import { Play, Pause, Heart, Wifi, ListPlus } from 'lucide-react';
+import { Play, Pause, Heart, Wifi, ListPlus, Music2 } from 'lucide-react';
 import { useStore } from '../../../core/store/useStore';
 import { StationFavicon } from '../../../shared/components/StationFavicon';
 import { LoadingSpinner } from '../../../shared/components/LoadingSpinner';
 import { AddToListMenu } from './AddToListMenu';
+import { formatTrack } from '../../../shared/utils/track';
 import type { Station } from '../../../core/types';
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
 }
 
 export function StationCard({ station, queue }: Props) {
-  const { player, playStation, pauseResume, toggleFavorite, isFavorite, lists } = useStore();
+  const { player, playStation, pauseResume, toggleFavorite, isFavorite, lists, nowPlaying } = useStore();
   const [listAnchor, setListAnchor] = useState<HTMLElement | null>(null);
   const closeListMenu = useCallback(() => setListAnchor(null), []);
 
@@ -57,19 +58,26 @@ export function StationCard({ station, queue }: Props) {
           )}
           <p className="truncate text-sm font-semibold text-white">{station.name}</p>
         </div>
-        <div className="mt-0.5 flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap">
-          {tags.map(tag => (
-            <span key={tag} className="min-w-0 truncate text-xs text-muted">
-              {tag}
-            </span>
-          ))}
-          {station.bitrate > 0 && (
-            <span className="flex flex-shrink-0 items-center gap-1 text-xs text-muted">
-              <Wifi size={10} />
-              {station.bitrate}k
-            </span>
-          )}
-        </div>
+        {isThisStation && nowPlaying ? (
+          <p key={formatTrack(nowPlaying)} className="animate-fade-in mt-0.5 flex min-w-0 items-center gap-1.5 text-xs text-white/70">
+            <Music2 size={11} className="flex-shrink-0 text-live" aria-hidden />
+            <span className="truncate">{formatTrack(nowPlaying)}</span>
+          </p>
+        ) : (
+          <div className="mt-0.5 flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap">
+            {tags.map(tag => (
+              <span key={tag} className="min-w-0 truncate text-xs text-muted">
+                {tag}
+              </span>
+            ))}
+            {station.bitrate > 0 && (
+              <span className="flex flex-shrink-0 items-center gap-1 text-xs text-muted">
+                <Wifi size={10} />
+                {station.bitrate}k
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Revealed on hover with a mouse; always visible on touch screens, which have no hover */}

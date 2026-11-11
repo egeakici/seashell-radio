@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Heart, Volume1, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Heart, Music2, Volume1, Volume2, VolumeX } from 'lucide-react';
 import { useStore } from '../../core/store/useStore';
 import { StationFavicon } from './StationFavicon';
 import { LoadingSpinner } from './LoadingSpinner';
+import { formatTrack } from '../utils/track';
 
 // Floats at the bottom of the nearest positioned parent (the content panel or the map).
 // Phones: full-width compact mini player. Larger screens: centered 520px bar.
 export function NowPlayingBar() {
-  const { player, pauseResume, playNext, playPrev, mode, mapPanelOpen, volume, setVolume, toggleFavorite, isFavorite } = useStore();
+  const { player, pauseResume, playNext, playPrev, mode, mapPanelOpen, volume, setVolume, toggleFavorite, isFavorite, nowPlaying } = useStore();
   const [prevVol, setPrevVol] = useState(volume > 0 ? volume : 0.8);
 
   const toggleMute = () => {
@@ -41,9 +42,17 @@ export function NowPlayingBar() {
 
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-white truncate">{currentStation.name}</p>
-        <p className="text-xs text-muted truncate">
-          {[currentStation.country, currentStation.bitrate ? `${currentStation.bitrate}kbps` : ''].filter(Boolean).join(' · ')}
-        </p>
+        {nowPlaying ? (
+          // Keyed so the text fades in again whenever the track changes
+          <p key={formatTrack(nowPlaying)} className="animate-fade-in flex min-w-0 items-center gap-1.5 text-xs text-white/70" title={formatTrack(nowPlaying)}>
+            <Music2 size={12} className="flex-shrink-0 text-live" aria-hidden />
+            <span className="truncate">{formatTrack(nowPlaying)}</span>
+          </p>
+        ) : (
+          <p className="text-xs text-muted truncate">
+            {[currentStation.country, currentStation.bitrate ? `${currentStation.bitrate}kbps` : ''].filter(Boolean).join(' · ')}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2">
