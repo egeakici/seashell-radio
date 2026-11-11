@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, ListMusic } from 'lucide-react';
 import type { Country, Station } from '../../../core/types';
 import { getStationsByCountry } from '../../../core/api/radioBrowser';
@@ -12,24 +12,27 @@ interface Props {
   onClose: () => void;
 }
 
-const MIN_HEIGHT_VH = 20;
-const MAX_HEIGHT_VH = 92;
-const DEFAULT_HEIGHT_VH = 30;
+// Heights are percentages of the map area (the panel's positioned parent)
+const MIN_HEIGHT = 20;
+const MAX_HEIGHT = 92;
+const DEFAULT_HEIGHT = 40;
 
 export function StationPanel({ country, onClose }: Props) {
   const [stations, setStations] = useState<Station[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [heightVh, setHeightVh] = useState(DEFAULT_HEIGHT_VH);
+  const [height, setHeight] = useState(DEFAULT_HEIGHT);
+  const panelRef = useRef<HTMLDivElement>(null);
   const { player, setQueue, playStation } = useStore();
 
   const startDrag = useCallback((startClientY: number) => {
-    const startHeight = heightVh;
+    const startHeight = height;
+    const areaHeight = panelRef.current?.parentElement?.clientHeight || window.innerHeight;
 
     const onMove = (e: MouseEvent | TouchEvent) => {
       const y = 'touches' in e ? e.touches[0].clientY : e.clientY;
-      const deltaVh = ((startClientY - y) / window.innerHeight) * 100;
-      setHeightVh(Math.max(MIN_HEIGHT_VH, Math.min(MAX_HEIGHT_VH, startHeight + deltaVh)));
+      const delta = ((startClientY - y) / areaHeight) * 100;
+      setHeight(Math.max(MIN_HEIGHT, Math.min(MAX_HEIGHT, startHeight + delta)));
     };
 
     const onEnd = () => {
@@ -43,7 +46,7 @@ export function StationPanel({ country, onClose }: Props) {
     document.addEventListener('touchmove', onMove, { passive: true });
     document.addEventListener('mouseup', onEnd);
     document.addEventListener('touchend', onEnd);
-  }, [heightVh]);
+  }, [height]);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,12 +80,16 @@ export function StationPanel({ country, onClose }: Props) {
   const hasNowPlaying = !!player.currentStation;
 
   return (
-    // Slide-up from bottom, sits on top of map, below NowPlayingBar
-    <div className="fixed bottom-0 left-0 right-0 flex flex-col rounded-t-2xl border-t border-white/[0.06] bg-base shadow-2xl" style={{ zIndex: 1000, height: `${heightVh}vh` }}>
+    // Slides up from the bottom of the map area (stays above the phone tab bar)
+    <div
+      ref={panelRef}
+      className="absolute bottom-0 left-0 right-0 flex flex-col rounded-t-2xl border-t border-white/[0.06] bg-base shadow-2xl"
+      style={{ zIndex: 1000, height: `${height}%` }}
+    >
 
       {/* Drag handle */}
       <div
-        className="flex justify-center pt-2.5 pb-2 flex-shrink-0 cursor-ns-resize select-none"
+        className="flex flex-shrink-0 cursor-ns-resize touch-none select-none justify-center pb-3 pt-3"
         onMouseDown={e => startDrag(e.clientY)}
         onTouchStart={e => startDrag(e.touches[0].clientY)}
       >

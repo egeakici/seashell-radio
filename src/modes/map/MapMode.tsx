@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { useCountries } from '../discovery/hooks/useCountries';
 import { COUNTRY_COORDS } from '../../shared/utils/countryCoords';
 import { StationPanel } from './components/StationPanel';
+import { NowPlayingBar } from '../../shared/components/NowPlayingBar';
 import type { Country } from '../../core/types';
 
 // Esri satellite imagery (no API key) with a transparent borders + place-names overlay on top
@@ -84,7 +85,7 @@ export function MapMode() {
         </MapContainer>
 
         {!selectedCountry && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+          <div className="pointer-events-none absolute left-1/2 top-4 z-[500] -translate-x-1/2">
             <div className="rounded-full border border-white/[0.08] bg-[rgba(35,34,44,0.8)] px-3 py-1.5 text-xs text-white/75 backdrop-blur-md">
               Tap a country → see radio stations
             </div>
@@ -97,6 +98,8 @@ export function MapMode() {
             onClose={handleClosePanel}
           />
         )}
+
+        <NowPlayingBar />
       </div>
     </div>
   );

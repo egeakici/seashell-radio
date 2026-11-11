@@ -79,7 +79,7 @@ export function DiscoveryMode() {
             </div>
           </div>
 
-          <div className="relative flex-1 overflow-y-auto px-4 pb-32 lg:px-6">
+          <div className="relative flex-1 overflow-y-auto px-2 pb-28 sm:px-4 sm:pb-32 lg:px-6">
             {view === 'trending' ? (
               <TrendingList />
             ) : view === 'recent' ? (
@@ -93,7 +93,7 @@ export function DiscoveryMode() {
             )}
           </div>
 
-          <NowPlayingBar placement="container" />
+          <NowPlayingBar />
         </section>
       </div>
 
@@ -101,7 +101,10 @@ export function DiscoveryMode() {
       {drawerOpen && (
         <div className="fixed inset-0 z-[1300] lg:hidden" role="dialog" aria-modal="true" aria-label="Library and filters">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDrawerOpen(false)} />
-          <div className="animate-slide-in-left absolute inset-y-0 left-0 w-[290px] max-w-[85vw] overflow-y-auto border-r border-white/[0.06] bg-panel px-3 pb-10 pt-5">
+          <div
+            className="animate-slide-in-left absolute inset-y-0 left-0 w-[290px] max-w-[85vw] overflow-y-auto overscroll-contain border-r border-white/[0.06] bg-panel px-3 pb-10 pt-5"
+            style={{ paddingTop: 'calc(1.25rem + env(safe-area-inset-top))' }}
+          >
             <div className="mb-5 flex items-center justify-between px-3">
               <span className="text-sm font-semibold text-white">Library & Filters</span>
               <button

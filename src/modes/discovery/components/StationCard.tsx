@@ -36,7 +36,7 @@ export function StationCard({ station, queue }: Props) {
 
   return (
     <div
-      className={`group relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-xl px-4 py-3 transition-colors ${
+      className={`group relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-xl px-2 py-2.5 transition-colors sm:px-4 sm:py-3 ${
         isThisStation ? 'bg-white/[0.06]' : 'hover:bg-white/[0.035]'
       }`}
       onClick={handlePlay}
@@ -72,14 +72,15 @@ export function StationCard({ station, queue }: Props) {
         </div>
       </div>
 
-      <div className={`flex items-center gap-1 group-hover:opacity-100 transition-opacity ${listAnchor ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Revealed on hover with a mouse; always visible on touch screens, which have no hover */}
+      <div className={`flex items-center gap-0.5 transition-opacity group-hover:opacity-100 [@media(hover:none)]:opacity-100 ${listAnchor ? 'opacity-100' : 'opacity-0'}`}>
         <button
           onClick={e => {
             e.stopPropagation();
             const target = e.currentTarget;
             setListAnchor(a => (a ? null : target));
           }}
-          className={`p-1.5 rounded-full transition-all ${
+          className={`rounded-full p-2 transition-all sm:p-1.5 ${
             inAnyList || listAnchor ? 'text-accent-glow' : 'text-muted hover:text-white'
           }`}
           aria-label="Add to list"
@@ -92,7 +93,7 @@ export function StationCard({ station, queue }: Props) {
             e.stopPropagation();
             toggleFavorite(station);
           }}
-          className={`p-1.5 rounded-full transition-all ${
+          className={`rounded-full p-2 transition-all sm:p-1.5 ${
             favorite
               ? 'text-pink-400'
               : 'text-muted hover:text-pink-400'
