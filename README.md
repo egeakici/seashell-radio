@@ -54,6 +54,7 @@ These modes share a centralized playback engine so users can switch between view
 
 - Centralized audio engine that preserves playback between modes.
 - Standard browser audio streams and HLS (`.m3u8`) playback through `hls.js`.
+- Automatic fallback for streams the browser cannot load directly: `http://` streams are first upgraded to `https://`, then relayed through a same-origin stream proxy.
 - Playback status synchronization across the interface.
 - Persistent volume settings and queue navigation.
 
@@ -92,6 +93,9 @@ These modes share a centralized playback engine so users can switch between view
 ## Architecture Overview
 
 ```text
+functions/
+  api/stream.ts   Cloudflare Pages Function that relays http-only and CORS-less streams
+
 src/
   core/
     api/          Radio Browser API client and mirror fallback
@@ -117,7 +121,16 @@ The application uses a shared core for audio playback, API access, state, and br
 
 **Production URL:** https://global-radio-browser.pages.dev/
 
-The application is hosted on **Cloudflare Pages**, with production builds deployed automatically from the GitHub repository's `main` branch. The browser fetches station metadata from Radio Browser and connects to the individual radio streams. No application-specific backend or user account is required for the current release.
+The application is hosted on **Cloudflare Pages**, with production builds deployed automatically from the GitHub repository's `main` branch. The browser fetches station metadata from Radio Browser and connects to the individual radio streams. The only server-side component is a small Cloudflare Pages Function at `/api/stream`. It relays streams that browsers block on an HTTPS page (`http://` streams and HLS streams without CORS headers) and rewrites HLS playlists so their segments are relayed too. It only passes through audio, video and playlist responses and rejects cross-site use. No user account is required.
+
+To test the proxy locally, build the app and run it with the Pages runtime:
+
+```bash
+npm run build
+npx wrangler pages dev dist
+```
+
+`npm run dev` does not run Pages Functions; on the plain-HTTP dev server most streams play directly without the proxy.
 
 ## Data Source
 
@@ -131,7 +144,7 @@ The project does not require a private API key. Station availability and stream 
 - HLS support differs between browsers; `hls.js` is used where appropriate.
 - Wake Lock and Media Session features depend on browser and operating-system support.
 - Bluetooth, lock-screen, and steering-wheel controls depend on the device and its media integration.
-- Some third-party radio streams may be unavailable or incompatible with secure browser playback.
+- Some third-party radio streams may be unavailable even through the proxy (for example, servers that are offline or that refuse connections from Cloudflare).
 
 ## Roadmap
 
