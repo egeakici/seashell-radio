@@ -6,37 +6,13 @@
 // HLS playlists are rewritten so every segment / sub-playlist also goes through this proxy.
 // Only audio/video/playlist responses are relayed, so this cannot be used as a generic web proxy.
 
+import { errorResponse, isCrossSite, parseTargetUrl } from '../_shared/guard';
+
 const PROXY_PATH = '/api/stream';
 const UPSTREAM_TIMEOUT_MS = 15_000;
 
 const PLAYLIST_TYPES = ['mpegurl', 'x-mpegurl', 'vnd.apple.mpegurl'];
 const MEDIA_TYPE_PREFIXES = ['audio/', 'video/', 'application/ogg', 'application/octet-stream'];
-
-function errorResponse(status: number, message: string): Response {
-  return new Response(message, {
-    status,
-    headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
-  });
-}
-
-function isBlockedHost(hostname: string): boolean {
-  const h = hostname.toLowerCase().replace(/^\[|\]$/g, '');
-  if (h === 'localhost' || h.endsWith('.localhost') || h.endsWith('.local') || h.endsWith('.internal')) return true;
-  if (h.includes(':')) {
-    // IPv6 literal: loopback, unspecified, unique-local, link-local
-    return h === '::1' || h === '::' || /^f[cd]/.test(h) || h.startsWith('fe80');
-  }
-  const m = h.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
-  if (!m) return false;
-  const [a, b] = [Number(m[1]), Number(m[2])];
-  return (
-    a === 0 || a === 10 || a === 127 ||
-    (a === 100 && b >= 64 && b <= 127) ||
-    (a === 169 && b === 254) ||
-    (a === 172 && b >= 16 && b <= 31) ||
-    (a === 192 && b === 168)
-  );
-}
 
 function proxify(target: string): string {
   return `${PROXY_PATH}?url=${encodeURIComponent(target)}`;
@@ -75,27 +51,10 @@ function isMedia(contentType: string): boolean {
 }
 
 export const onRequestGet = async ({ request }: { request: Request }): Promise<Response> => {
-  // Only serve our own pages — browsers send Sec-Fetch-Site on media and fetch requests
-  const fetchSite = request.headers.get('Sec-Fetch-Site');
-  if (fetchSite && fetchSite !== 'same-origin' && fetchSite !== 'none') {
-    return errorResponse(403, 'Cross-site use of this proxy is not allowed.');
-  }
+  if (isCrossSite(request)) return errorResponse(403, 'Cross-site use of this proxy is not allowed.');
 
-  const raw = new URL(request.url).searchParams.get('url');
-  if (!raw) return errorResponse(400, 'Missing "url" parameter.');
-
-  let target: URL;
-  try {
-    target = new URL(raw);
-  } catch {
-    return errorResponse(400, 'Invalid "url" parameter.');
-  }
-  if (target.protocol !== 'http:' && target.protocol !== 'https:') {
-    return errorResponse(400, 'Only http and https streams are supported.');
-  }
-  if (isBlockedHost(target.hostname)) {
-    return errorResponse(403, 'Host not allowed.');
-  }
+  const target = parseTargetUrl(request);
+  if (target instanceof Response) return target;
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
