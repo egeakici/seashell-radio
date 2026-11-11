@@ -5,7 +5,7 @@ import { DrivingMode } from './modes/driving/DrivingMode';
 import { useMediaSession } from './shared/hooks/useMediaSession';
 import { useAudioEvents } from './shared/hooks/useAudioEvents';
 import { useNowPlaying } from './shared/hooks/useNowPlaying';
-import { Radio, Car, Compass, Map } from 'lucide-react';
+import { Car, Compass, Map } from 'lucide-react';
 import type { AppMode } from './core/types';
 
 const NAV_TABS: { id: AppMode; label: string; icon: typeof Compass }[] = [
@@ -32,9 +32,7 @@ export default function App() {
         <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between">
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.08] to-white/[0.02]">
-              <Radio size={17} className="text-accent-glow" strokeWidth={2} />
-            </div>
+            <img src="/logo.png" alt="" width={36} height={36} className="h-9 w-9 flex-shrink-0 select-none" draggable={false} />
             <span className="text-[16px] font-semibold leading-none tracking-[-0.01em]">
               <span className="text-white">Radio</span>
               <span className="text-white/45">Browser</span>
