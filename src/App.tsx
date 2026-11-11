@@ -22,29 +22,24 @@ export default function App() {
   useMediaSession();
 
   return (
-    <div className="h-dvh flex flex-col bg-base text-white overflow-hidden">
-      <header className="relative z-[1200] flex h-[72px] flex-shrink-0 items-center bg-surface px-4 lg:px-6 xl:px-8">
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/[0.10] to-transparent" />
-
+    <div className="h-dvh flex flex-col bg-shell text-white overflow-hidden">
+      <header className="relative z-[1200] flex h-16 flex-shrink-0 items-center px-4 lg:px-6 xl:px-8">
         <div className="mx-auto flex w-full max-w-[1600px] items-center justify-between">
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <div className="relative flex-shrink-0">
-              <div className="absolute -inset-1 rounded-2xl bg-accent/20 blur-[8px] opacity-70" />
-              <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl border border-accent/30 bg-gradient-to-b from-accent/20 to-accent/5">
-                <Radio size={19} className="text-accent-glow" strokeWidth={1.9} />
-              </div>
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-gradient-to-b from-white/[0.08] to-white/[0.02]">
+              <Radio size={17} className="text-accent-glow" strokeWidth={2} />
             </div>
-            <span className="text-[17px] font-bold tracking-[0.015em] leading-none">
-              <span className="bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">Radio</span>
-              <span className="bg-gradient-to-r from-accent to-accent-glow bg-clip-text text-transparent">Browser</span>
+            <span className="text-[16px] font-semibold leading-none tracking-[-0.01em]">
+              <span className="text-white">Radio</span>
+              <span className="text-white/45">Browser</span>
             </span>
           </div>
 
           {/* Navigation */}
           <nav
             role="tablist"
-            className="flex items-center gap-1 rounded-full border border-white/[0.10] bg-white/[0.04] p-1.5"
+            className="flex items-center gap-1 rounded-full border border-white/[0.06] bg-white/[0.03] p-1"
           >
             {NAV_TABS.map(tab => {
               const Icon = tab.icon;
@@ -56,13 +51,13 @@ export default function App() {
                   role="tab"
                   onClick={() => setMode(tab.id)}
                   aria-selected={isActive}
-                  className={`flex h-9 items-center justify-center gap-2 rounded-full px-5 text-[13.5px] font-medium tracking-[0.015em] transition-all duration-200 sm:min-w-[96px] ${
+                  className={`flex h-8 items-center justify-center gap-2 rounded-full px-4 text-[13px] font-medium transition-colors duration-200 sm:min-w-[92px] ${
                     isActive
-                      ? 'bg-accent text-white shadow-[0_2px_16px_rgba(129,140,248,0.5)]'
-                      : 'text-white/45 hover:text-white/70 hover:bg-white/[0.06]'
+                      ? 'bg-white/[0.10] text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.06)]'
+                      : 'text-white/45 hover:bg-white/[0.04] hover:text-white/80'
                   }`}
                 >
-                  <Icon size={15} strokeWidth={isActive ? 2.4 : 2} />
+                  <Icon size={15} strokeWidth={2} className={isActive ? 'text-accent-glow' : ''} />
                   <span className="hidden sm:inline">{tab.label}</span>
                 </button>
               );
@@ -71,14 +66,14 @@ export default function App() {
         </div>
       </header>
 
-      {/* Mode content */}
+      {/* Mode content — each mode lays out its own panels on the shell background */}
       <main className="flex-1 overflow-hidden relative">
         {mode === 'discovery' && <DiscoveryMode />}
         {mode === 'map' && <MapMode />}
         {mode === 'driving' && <DrivingMode />}
       </main>
 
-      {/* Discovery renders its own bar centered on the content column; Drive has full-size controls */}
+      {/* Discovery renders its own bar centered on the content panel; Drive has full-size controls */}
       {mode === 'map' && <NowPlayingBar />}
     </div>
   );

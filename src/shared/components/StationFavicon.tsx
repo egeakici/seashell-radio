@@ -13,7 +13,7 @@ export function StationFavicon({ src, name, size = 40 }: Props) {
   if (!src || failed) {
     return (
       <div
-        className="flex items-center justify-center rounded-lg bg-surface-card text-accent flex-shrink-0"
+        className="flex items-center justify-center rounded-lg bg-white/[0.06] text-white/40 flex-shrink-0"
         style={{ width: size, height: size }}
       >
         <Radio size={size * 0.5} />

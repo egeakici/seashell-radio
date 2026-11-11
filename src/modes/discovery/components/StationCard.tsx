@@ -36,12 +36,9 @@ export function StationCard({ station, queue }: Props) {
 
   return (
     <div
-      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer group relative overflow-hidden ${
-        isThisStation
-          ? 'border border-accent/25'
-          : 'border border-transparent hover:bg-surface-hover'
+      className={`group relative flex cursor-pointer items-center gap-3 overflow-hidden rounded-xl px-4 py-3 transition-colors ${
+        isThisStation ? 'bg-white/[0.06]' : 'hover:bg-white/[0.035]'
       }`}
-      style={isThisStation ? { background: 'rgba(129, 140, 248, 0.06)' } : {}}
       onClick={handlePlay}
     >
       {/* Active left-edge indicator */}
@@ -52,17 +49,22 @@ export function StationCard({ station, queue }: Props) {
       <StationFavicon src={station.favicon} name={station.name} size={46} />
 
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-semibold truncate ${isThisStation ? 'text-accent-glow' : 'text-white'}`}>
-          {station.name}
-        </p>
-        <div className="flex items-center gap-2 mt-0.5">
+        <div className="flex items-center gap-2">
+          {isPlaying && (
+            <span className="eq-bars flex-shrink-0 text-live" aria-hidden>
+              <span /><span /><span />
+            </span>
+          )}
+          <p className="truncate text-sm font-semibold text-white">{station.name}</p>
+        </div>
+        <div className="mt-0.5 flex min-w-0 items-center gap-2 overflow-hidden whitespace-nowrap">
           {tags.map(tag => (
-            <span key={tag} className="text-xs text-muted">
+            <span key={tag} className="min-w-0 truncate text-xs text-muted">
               {tag}
             </span>
           ))}
           {station.bitrate > 0 && (
-            <span className="flex items-center gap-1 text-xs text-muted">
+            <span className="flex flex-shrink-0 items-center gap-1 text-xs text-muted">
               <Wifi size={10} />
               {station.bitrate}k
             </span>
@@ -78,7 +80,7 @@ export function StationCard({ station, queue }: Props) {
             setListAnchor(a => (a ? null : target));
           }}
           className={`p-1.5 rounded-full transition-all ${
-            inAnyList || listAnchor ? 'text-accent' : 'text-muted hover:text-accent'
+            inAnyList || listAnchor ? 'text-accent-glow' : 'text-muted hover:text-white'
           }`}
           aria-label="Add to list"
           aria-expanded={!!listAnchor}
@@ -95,7 +97,6 @@ export function StationCard({ station, queue }: Props) {
               ? 'text-pink-400'
               : 'text-muted hover:text-pink-400'
           }`}
-          style={favorite ? { filter: 'drop-shadow(0 0 6px rgba(244,114,182,0.5))' } : {}}
           aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
         >
           <Heart size={16} fill={favorite ? 'currentColor' : 'none'} />
@@ -105,16 +106,16 @@ export function StationCard({ station, queue }: Props) {
       {listAnchor && <AddToListMenu station={station} anchor={listAnchor} onClose={closeListMenu} />}
 
       <button
-        className={`w-9 h-9 rounded-full flex items-center justify-center transition-all flex-shrink-0 text-white`}
-        style={isThisStation
-          ? { background: 'linear-gradient(135deg, #818cf8, #4f46e5)', boxShadow: '0 0 16px rgba(129,140,248,0.35)' }
-          : { background: 'rgba(45, 45, 82, 0.6)' }
-        }
+        className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full transition-colors ${
+          isThisStation
+            ? 'bg-white text-shell'
+            : 'bg-white/[0.06] text-white/80 group-hover:bg-white group-hover:text-shell'
+        }`}
         aria-label={isPlaying ? 'Pause' : 'Play'}
         onClick={e => { e.stopPropagation(); handlePlay(); }}
       >
         {isLoading ? (
-          <LoadingSpinner size={16} />
+          <LoadingSpinner size={16} className="text-shell" />
         ) : isPlaying ? (
           <Pause size={16} />
         ) : (

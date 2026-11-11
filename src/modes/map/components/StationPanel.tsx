@@ -78,7 +78,7 @@ export function StationPanel({ country, onClose }: Props) {
 
   return (
     // Slide-up from bottom, sits on top of map, below NowPlayingBar
-    <div className="fixed bottom-0 left-0 right-0 flex flex-col bg-surface rounded-t-2xl border-t border-surface-border shadow-2xl" style={{ zIndex: 1000, height: `${heightVh}vh` }}>
+    <div className="fixed bottom-0 left-0 right-0 flex flex-col rounded-t-2xl border-t border-white/[0.06] bg-base shadow-2xl" style={{ zIndex: 1000, height: `${heightVh}vh` }}>
 
       {/* Drag handle */}
       <div
@@ -105,7 +105,7 @@ export function StationPanel({ country, onClose }: Props) {
           {stations.length > 0 && (
             <button
               onClick={handlePlayAll}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/20 text-accent text-xs font-medium hover:bg-accent/30 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg bg-white/[0.08] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-white/[0.12]"
             >
               <ListMusic size={13} />
               Add all to queue

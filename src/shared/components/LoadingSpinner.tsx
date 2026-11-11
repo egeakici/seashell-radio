@@ -1,7 +1,7 @@
-export function LoadingSpinner({ size = 24 }: { size?: number }) {
+export function LoadingSpinner({ size = 24, className = 'text-accent' }: { size?: number; className?: string }) {
   return (
     <svg
-      className="animate-spin text-accent"
+      className={`animate-spin ${className}`}
       style={{ width: size, height: size }}
       viewBox="0 0 24 24"
       fill="none"

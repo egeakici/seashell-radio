@@ -40,26 +40,29 @@ export function DiscoveryMode() {
   };
 
   return (
-    <div className="h-full px-0 lg:px-6 xl:px-8">
-      <div className="mx-auto flex h-full max-w-[1600px]">
-        {/* Sidebar — desktop */}
-        <aside className="hidden w-64 flex-shrink-0 overflow-y-auto border-r border-white/[0.06] py-6 pb-10 pr-5 lg:block xl:w-72">
+    <div className="h-full lg:px-3 lg:pb-3 xl:px-5">
+      <div className="mx-auto flex h-full max-w-[1624px] gap-3">
+        {/* Sidebar panel — desktop */}
+        <aside className="hidden w-64 flex-shrink-0 overflow-y-auto rounded-2xl border border-white/[0.04] bg-panel px-3 py-5 lg:block xl:w-72">
           <DiscoverySidebar view={view} onViewChange={handleViewChange} />
         </aside>
 
-        {/* Content column — positioned so the now-playing bar centers on it, not on the screen */}
-        <section className="relative flex min-w-0 flex-1 flex-col">
-          <div className="flex items-center gap-2 px-4 pb-3 pt-4 lg:px-8 lg:pt-6">
+        {/* Content panel — positioned so the now-playing bar centers on it, not on the screen */}
+        <section className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-base lg:rounded-2xl lg:border lg:border-white/[0.04]">
+          {/* Soft tint at the top of the panel */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-accent/[0.07] via-accent/[0.02] to-transparent" aria-hidden />
+
+          <div className="relative flex items-center gap-2 px-4 pb-4 pt-4 lg:px-8 lg:pt-6">
             <button
               onClick={() => setDrawerOpen(true)}
-              className="relative flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.025] text-white/60 transition-colors hover:text-white lg:hidden"
+              className="relative flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.05] text-white/60 transition-colors hover:text-white lg:hidden"
               aria-label="Open library and filters"
             >
               <SlidersHorizontal size={17} />
               {hasActiveFilter && <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />}
             </button>
 
-            <div className="flex flex-1 items-center gap-2.5 rounded-xl border border-white/[0.08] bg-white/[0.025] px-3.5 py-2.5 transition-colors focus-within:border-accent/40 focus-within:bg-white/[0.04]">
+            <div className="flex flex-1 items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.05] px-3.5 py-2.5 transition-colors focus-within:border-accent/40 focus-within:bg-white/[0.07]">
               <Search size={16} className="flex-shrink-0 text-white/40" />
               <input
                 type="text"
@@ -76,7 +79,7 @@ export function DiscoveryMode() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4 pb-32 lg:px-8">
+          <div className="relative flex-1 overflow-y-auto px-4 pb-32 lg:px-6">
             {view === 'trending' ? (
               <TrendingList />
             ) : view === 'recent' ? (
@@ -98,7 +101,7 @@ export function DiscoveryMode() {
       {drawerOpen && (
         <div className="fixed inset-0 z-[1300] lg:hidden" role="dialog" aria-modal="true" aria-label="Library and filters">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDrawerOpen(false)} />
-          <div className="animate-slide-in-left absolute inset-y-0 left-0 w-[290px] max-w-[85vw] overflow-y-auto border-r border-white/[0.08] bg-surface px-4 pb-10 pt-5">
+          <div className="animate-slide-in-left absolute inset-y-0 left-0 w-[290px] max-w-[85vw] overflow-y-auto border-r border-white/[0.06] bg-panel px-3 pb-10 pt-5">
             <div className="mb-5 flex items-center justify-between px-3">
               <span className="text-sm font-semibold text-white">Library & Filters</span>
               <button

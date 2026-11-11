@@ -35,20 +35,20 @@ export function NowPlayingBar({ placement = 'viewport' }: Props) {
 
   return (
     <div
-      className={`${placement === 'viewport' ? 'fixed' : 'absolute'} bottom-6 left-1/2 -translate-x-1/2 rounded-2xl px-5 py-4 flex items-center gap-4`}
-      style={{ zIndex: 1100, background: 'rgba(8, 8, 18, 0.92)', backdropFilter: 'blur(28px)', WebkitBackdropFilter: 'blur(28px)', border: '1px solid rgba(129,140,248,0.2)', boxShadow: '0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(129,140,248,0.05)', width: '520px', maxWidth: placement === 'viewport' ? 'calc(100vw - 2rem)' : 'calc(100% - 2rem)' }}
+      className={`${placement === 'viewport' ? 'fixed' : 'absolute'} bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-4 rounded-2xl border border-white/[0.08] bg-[rgba(35,34,44,0.78)] px-4 py-3 shadow-float backdrop-blur-2xl`}
+      style={{ zIndex: 1100, width: '520px', maxWidth: placement === 'viewport' ? 'calc(100vw - 2rem)' : 'calc(100% - 2rem)' }}
     >
       <div className="relative flex-shrink-0">
         <StationFavicon src={currentStation.favicon} name={currentStation.name} size={48} />
         {isPlaying && (
-          <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-green-400 border-2 border-[#08080f] animate-pulse" />
+          <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 animate-pulse rounded-full border-2 border-surface bg-live" />
         )}
       </div>
 
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-white truncate">{currentStation.name}</p>
         <p className="text-xs text-muted truncate">
-          {currentStation.country}{currentStation.bitrate ? ` · ${currentStation.bitrate}kbps` : ''}
+          {[currentStation.country, currentStation.bitrate ? `${currentStation.bitrate}kbps` : ''].filter(Boolean).join(' · ')}
         </p>
       </div>
 
@@ -74,7 +74,7 @@ export function NowPlayingBar({ placement = 'viewport' }: Props) {
             onChange={e => setVolume(parseFloat(e.target.value))}
             className="vol-slider"
             style={{
-              background: `linear-gradient(to right, #818cf8 ${volume * 100}%, rgba(255,255,255,0.12) ${volume * 100}%)`,
+              background: `linear-gradient(to right, #d4cdfb ${volume * 100}%, rgba(255,255,255,0.12) ${volume * 100}%)`,
             }}
             aria-label="Volume"
           />
@@ -87,11 +87,10 @@ export function NowPlayingBar({ placement = 'viewport' }: Props) {
         </button>
         <button
           onClick={() => { void pauseResume(); }}
-          className="w-10 h-10 rounded-full flex items-center justify-center text-white transition-all hover:brightness-110"
-          style={{ background: 'linear-gradient(135deg, #818cf8, #4f46e5)' }}
+          className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-shell transition-transform hover:scale-105"
           aria-label={isPlaying ? 'Pause' : 'Play'}
         >
-          {isLoading ? <LoadingSpinner size={18} /> : isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
+          {isLoading ? <LoadingSpinner size={18} className="text-shell" /> : isPlaying ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
         </button>
         <button onClick={() => { void playNext(); }} className="p-2 text-muted hover:text-white transition-colors" aria-label="Next station">
           <SkipForward size={18} />

@@ -52,18 +52,18 @@ export function DrivingMode() {
   const pickerTitle = queue.length ? 'Up Next' : 'Favorites';
 
   return (
-    <div className="h-full lg:px-6 xl:px-8">
-      <div className="mx-auto flex h-full max-w-[1600px] select-none">
+    <div className="h-full lg:px-3 lg:pb-3 xl:px-5">
+      <div className="mx-auto flex h-full max-w-[1624px] select-none gap-3">
         {/* Now playing — swipe left/right to change station */}
         <section
-          className="relative flex min-w-0 flex-1 flex-col"
-          style={{ background: 'radial-gradient(ellipse at 50% 20%, rgba(79, 70, 229, 0.16) 0%, transparent 60%)' }}
+          className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-base lg:rounded-2xl lg:border lg:border-white/[0.04]"
+          style={{ backgroundImage: 'radial-gradient(ellipse at 50% 15%, rgba(169, 156, 246, 0.10) 0%, transparent 60%)' }}
           {...swipeHandlers}
         >
           <div className="flex items-center justify-between px-6 pt-6 lg:px-10">
             <div className="flex items-center gap-2">
-              <div className={`h-2 w-2 rounded-full ${isPlaying ? 'animate-pulse bg-green-400' : 'bg-white/20'}`} />
-              <span className={`text-xs font-semibold uppercase tracking-widest ${isPlaying ? 'text-green-400' : 'text-white/30'}`}>
+              <div className={`h-2 w-2 rounded-full ${isPlaying ? 'animate-pulse bg-live' : 'bg-white/20'}`} />
+              <span className={`text-xs font-semibold uppercase tracking-widest ${isPlaying ? 'text-live' : 'text-white/30'}`}>
                 {isPlaying ? 'Live' : isLoading ? 'Connecting' : 'Paused'}
               </span>
             </div>
@@ -78,7 +78,7 @@ export function DrivingMode() {
                 className="absolute rounded-2xl transition-all duration-700"
                 style={{
                   inset: '-24px',
-                  background: isPlaying ? 'radial-gradient(ellipse, rgba(129,140,248,0.4) 0%, transparent 70%)' : 'transparent',
+                  background: isPlaying ? 'radial-gradient(ellipse, rgba(169,156,246,0.28) 0%, transparent 70%)' : 'transparent',
                   filter: 'blur(24px)',
                 }}
               />
@@ -93,9 +93,11 @@ export function DrivingMode() {
             {currentStation ? (
               <div className="max-w-xl space-y-2 text-center">
                 <h1 className="text-2xl font-bold leading-tight text-white lg:text-3xl">{currentStation.name}</h1>
-                <p className="text-base text-white/50">
-                  {countryCodeToFlag(currentStation.countrycode)} {currentStation.country}
-                </p>
+                {currentStation.country && (
+                  <p className="text-base text-white/50">
+                    {countryCodeToFlag(currentStation.countrycode)} {currentStation.country}
+                  </p>
+                )}
                 {currentStation.tags && (
                   <p className="text-sm text-white/30">
                     {currentStation.tags.split(',').slice(0, 3).map(t => t.trim()).filter(Boolean).join(' · ')}
@@ -145,7 +147,7 @@ export function DrivingMode() {
               <button
                 onClick={() => { void playPrev(); }}
                 disabled={!canSkip}
-                className="flex h-16 w-16 items-center justify-center text-white/45 transition-colors hover:text-accent-glow disabled:opacity-20"
+                className="flex h-16 w-16 items-center justify-center text-white/45 transition-colors hover:text-white disabled:opacity-20"
                 aria-label="Previous station"
               >
                 <SkipBack size={34} />
@@ -154,20 +156,19 @@ export function DrivingMode() {
               <button
                 onClick={() => { void pauseResume(); }}
                 disabled={!currentStation}
-                className="flex h-24 w-24 items-center justify-center rounded-full text-white transition-all hover:brightness-110 disabled:opacity-30"
+                className="flex h-24 w-24 items-center justify-center rounded-full bg-white text-shell transition-transform hover:scale-[1.03] disabled:opacity-30"
                 style={{
-                  background: 'linear-gradient(135deg, #818cf8, #4f46e5)',
-                  boxShadow: isPlaying ? '0 0 50px rgba(129,140,248,0.5), 0 8px 32px rgba(0,0,0,0.5)' : '0 8px 32px rgba(0,0,0,0.6)',
+                  boxShadow: isPlaying ? '0 0 40px rgba(169,156,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' : '0 8px 32px rgba(0,0,0,0.45)',
                 }}
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >
-                {isLoading ? <LoadingSpinner size={36} /> : isPlaying ? <Pause size={40} /> : <Play size={40} className="ml-1" />}
+                {isLoading ? <LoadingSpinner size={36} className="text-shell" /> : isPlaying ? <Pause size={40} /> : <Play size={40} className="ml-1" />}
               </button>
 
               <button
                 onClick={() => { void playNext(); }}
                 disabled={!canSkip}
-                className="flex h-16 w-16 items-center justify-center text-white/45 transition-colors hover:text-accent-glow disabled:opacity-20"
+                className="flex h-16 w-16 items-center justify-center text-white/45 transition-colors hover:text-white disabled:opacity-20"
                 aria-label="Next station"
               >
                 <SkipForward size={34} />
@@ -185,7 +186,7 @@ export function DrivingMode() {
 
         {/* Station picker — large touch targets, desktop / landscape tablets */}
         {pickerStations.length > 0 && (
-          <aside className="hidden w-[360px] flex-shrink-0 flex-col border-l border-white/[0.06] lg:flex xl:w-[400px]">
+          <aside className="hidden w-[360px] flex-shrink-0 flex-col overflow-hidden rounded-2xl border border-white/[0.04] bg-panel lg:flex xl:w-[400px]">
             <h2 className="px-6 pb-3 pt-6 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/35">{pickerTitle}</h2>
             <div className="flex-1 overflow-y-auto px-3 pb-6">
               {pickerStations.map(station => (
@@ -210,13 +211,13 @@ function PickerRow({ station, active, onClick }: { station: Station; active: boo
       onClick={onClick}
       aria-current={active ? 'true' : undefined}
       className={`relative flex w-full items-center gap-4 rounded-2xl px-3 py-3 text-left transition-colors ${
-        active ? 'bg-accent/[0.14]' : 'hover:bg-white/[0.04]'
+        active ? 'bg-white/[0.07]' : 'hover:bg-white/[0.04]'
       }`}
     >
       {active && <span className="absolute left-0 top-1/2 h-8 w-[3px] -translate-y-1/2 rounded-r-full bg-accent" aria-hidden />}
       <StationFavicon src={station.favicon} name={station.name} size={52} />
       <div className="min-w-0 flex-1">
-        <p className={`truncate text-[15px] font-semibold ${active ? 'text-accent-glow' : 'text-white'}`}>{station.name}</p>
+        <p className="truncate text-[15px] font-semibold text-white">{station.name}</p>
         <p className="truncate text-sm text-white/40">{station.country}</p>
       </div>
     </button>

@@ -35,67 +35,69 @@ export function MapMode() {
   };
 
   return (
-    <div className="relative h-full">
-      <MapContainer
-        center={[30, 15]}
-        zoom={3}
-        minZoom={2}
-        maxZoom={12}
-        style={{ height: '100%', width: '100%', background: '#0a0a0f' }}
-        zoomControl={false}
-      >
-        <TileLayer url={IMAGERY_URL} attribution={TILE_ATTRIBUTION} maxNativeZoom={18} />
-        <TileLayer url={LABELS_URL} maxNativeZoom={18} opacity={0.85} />
+    <div className="h-full lg:px-3 lg:pb-3 xl:px-5">
+      <div className="relative mx-auto h-full max-w-[1624px] overflow-hidden lg:rounded-2xl lg:border lg:border-white/[0.04]">
+        <MapContainer
+          center={[30, 15]}
+          zoom={3}
+          minZoom={2}
+          maxZoom={12}
+          style={{ height: '100%', width: '100%', background: '#0f0e14' }}
+          zoomControl={false}
+        >
+          <TileLayer url={IMAGERY_URL} attribution={TILE_ATTRIBUTION} maxNativeZoom={18} />
+          <TileLayer url={LABELS_URL} maxNativeZoom={18} opacity={0.85} />
 
-        <ZoomControl position="bottomright" />
+          <ZoomControl position="bottomright" />
 
-        {countries.map(country => {
-          const coords = COUNTRY_COORDS[country.iso_3166_1];
-          if (!coords) return null;
+          {countries.map(country => {
+            const coords = COUNTRY_COORDS[country.iso_3166_1];
+            if (!coords) return null;
 
-          const isSelected = selectedCountry?.iso_3166_1 === country.iso_3166_1;
-          const radius = markerRadius(country.stationcount);
+            const isSelected = selectedCountry?.iso_3166_1 === country.iso_3166_1;
+            const radius = markerRadius(country.stationcount);
 
-          return (
-            <CircleMarker
-              key={country.iso_3166_1}
-              center={coords}
-              radius={isSelected ? radius + 5 : radius}
-              pathOptions={{
-                // White outline keeps markers readable over bright satellite imagery
-                color: '#ffffff',
-                fillColor: isSelected ? '#a5b4fc' : '#6366f1',
-                fillOpacity: isSelected ? 0.9 : 0.5,
-                weight: isSelected ? 3 : 1.5,
-              }}
-              eventHandlers={{
-                click: () => handleSelectCountry(country),
-              }}
-            >
-              <Tooltip direction="top" offset={[0, -4]} opacity={0.95}>
-                <span className="text-xs font-medium">
-                  {country.name} · {country.stationcount}
-                </span>
-              </Tooltip>
-            </CircleMarker>
-          );
-        })}
-      </MapContainer>
+            return (
+              <CircleMarker
+                key={country.iso_3166_1}
+                center={coords}
+                radius={isSelected ? radius + 5 : radius}
+                pathOptions={{
+                  // White outline keeps markers readable over bright satellite imagery
+                  color: '#ffffff',
+                  fillColor: isSelected ? '#d4cdfb' : '#a99cf6',
+                  fillOpacity: isSelected ? 0.9 : 0.5,
+                  weight: isSelected ? 3 : 1.5,
+                }}
+                eventHandlers={{
+                  click: () => handleSelectCountry(country),
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -4]} opacity={0.95}>
+                  <span className="text-xs font-medium">
+                    {country.name} · {country.stationcount}
+                  </span>
+                </Tooltip>
+              </CircleMarker>
+            );
+          })}
+        </MapContainer>
 
-      {!selectedCountry && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
-          <div className="bg-black/70 backdrop-blur-sm text-xs text-gray-300 px-3 py-1.5 rounded-full border border-white/10">
-            Tap a country → see radio stations
+        {!selectedCountry && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 pointer-events-none">
+            <div className="rounded-full border border-white/[0.08] bg-[rgba(35,34,44,0.8)] px-3 py-1.5 text-xs text-white/75 backdrop-blur-md">
+              Tap a country → see radio stations
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {selectedCountry && (
-        <StationPanel
-          country={selectedCountry}
-          onClose={handleClosePanel}
-        />
-      )}
+        {selectedCountry && (
+          <StationPanel
+            country={selectedCountry}
+            onClose={handleClosePanel}
+          />
+        )}
+      </div>
     </div>
   );
 }
