@@ -7,10 +7,13 @@ import { COUNTRY_COORDS } from '../../shared/utils/countryCoords';
 import { StationPanel } from './components/StationPanel';
 import type { Country } from '../../core/types';
 
-// CARTO basemaps now require an API key; Esri's dark canvas works without one
-const TILE_URL =
-  'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
-const TILE_ATTRIBUTION = 'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, HERE, Garmin, OpenStreetMap contributors';
+// Esri satellite imagery (no API key) with a transparent borders + place-names overlay on top
+const IMAGERY_URL =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+const LABELS_URL =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
+const TILE_ATTRIBUTION =
+  'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community';
 
 function markerRadius(stationCount: number): number {
   return Math.max(6, Math.log10(stationCount + 1) * 8);
@@ -41,11 +44,8 @@ export function MapMode() {
         style={{ height: '100%', width: '100%', background: '#0a0a0f' }}
         zoomControl={false}
       >
-        <TileLayer
-          url={TILE_URL}
-          attribution={TILE_ATTRIBUTION}
-          maxNativeZoom={16}
-        />
+        <TileLayer url={IMAGERY_URL} attribution={TILE_ATTRIBUTION} maxNativeZoom={18} />
+        <TileLayer url={LABELS_URL} maxNativeZoom={18} opacity={0.85} />
 
         <ZoomControl position="bottomright" />
 
@@ -62,10 +62,11 @@ export function MapMode() {
               center={coords}
               radius={isSelected ? radius + 5 : radius}
               pathOptions={{
-                color: isSelected ? '#e0d7ff' : '#a594f9',
-                fillColor: isSelected ? '#818cf8' : '#6366f1',
-                fillOpacity: isSelected ? 1 : 0.8,
-                weight: isSelected ? 2.5 : 1.5,
+                // White outline keeps markers readable over bright satellite imagery
+                color: '#ffffff',
+                fillColor: isSelected ? '#a5b4fc' : '#6366f1',
+                fillOpacity: isSelected ? 0.9 : 0.5,
+                weight: isSelected ? 3 : 1.5,
               }}
               eventHandlers={{
                 click: () => handleSelectCountry(country),
