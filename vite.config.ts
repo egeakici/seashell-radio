@@ -11,8 +11,8 @@ export default defineConfig({
         name: 'Radio Browser',
         short_name: 'Radio Browser',
         description: 'World radio stations, optimized for driving',
-        theme_color: '#05061e',
-        background_color: '#05061e',
+        theme_color: '#0f0e14',
+        background_color: '#0f0e14',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

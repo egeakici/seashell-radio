@@ -58,7 +58,7 @@ export function DrivingMode() {
         {/* Now playing — swipe left/right to change station */}
         <section
           className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-canvas lg:rounded-2xl lg:border lg:border-white/[0.04]"
-          style={{ backgroundImage: 'radial-gradient(ellipse at 50% 15%, rgba(187, 180, 219, 0.08) 0%, transparent 60%)' }}
+          style={{ backgroundImage: 'radial-gradient(ellipse at 50% 15%, rgba(169, 156, 246, 0.10) 0%, transparent 60%)' }}
           {...swipeHandlers}
         >
           <div className="flex items-center justify-between px-6 pt-6 lg:px-10">
@@ -79,7 +79,7 @@ export function DrivingMode() {
                 className="absolute rounded-2xl transition-all duration-700"
                 style={{
                   inset: '-24px',
-                  background: isPlaying ? 'radial-gradient(ellipse, rgba(187,180,219,0.22) 0%, transparent 70%)' : 'transparent',
+                  background: isPlaying ? 'radial-gradient(ellipse, rgba(169,156,246,0.28) 0%, transparent 70%)' : 'transparent',
                   filter: 'blur(24px)',
                 }}
               />
@@ -156,7 +156,7 @@ export function DrivingMode() {
                 onClick={() => currentStation && toggleFavorite(currentStation)}
                 disabled={!currentStation}
                 className={`flex h-14 w-14 items-center justify-center rounded-full transition-all disabled:opacity-30 ${
-                  favorite ? 'bg-white/[0.10] text-white' : 'text-white/30 hover:text-white/60'
+                  favorite ? 'bg-pink-400/[0.12] text-pink-400' : 'text-white/30 hover:text-white/60'
                 }`}
                 aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
                 aria-pressed={favorite}
@@ -178,7 +178,7 @@ export function DrivingMode() {
                 disabled={!currentStation}
                 className="flex h-24 w-24 items-center justify-center rounded-full bg-white text-shell transition-transform hover:scale-[1.03] disabled:opacity-30"
                 style={{
-                  boxShadow: isPlaying ? '0 0 40px rgba(237,229,247,0.18), 0 8px 32px rgba(0,0,0,0.4)' : '0 8px 32px rgba(0,0,0,0.45)',
+                  boxShadow: isPlaying ? '0 0 40px rgba(169,156,246,0.3), 0 8px 32px rgba(0,0,0,0.4)' : '0 8px 32px rgba(0,0,0,0.45)',
                 }}
                 aria-label={isPlaying ? 'Pause' : 'Play'}
               >

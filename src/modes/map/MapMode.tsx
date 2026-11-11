@@ -43,7 +43,7 @@ export function MapMode() {
           zoom={3}
           minZoom={2}
           maxZoom={12}
-          style={{ height: '100%', width: '100%', background: '#05061e' }}
+          style={{ height: '100%', width: '100%', background: '#0f0e14' }}
           zoomControl={false}
         >
           <TileLayer url={IMAGERY_URL} attribution={TILE_ATTRIBUTION} maxNativeZoom={18} />
@@ -66,7 +66,7 @@ export function MapMode() {
                 pathOptions={{
                   // White outline keeps markers readable over bright satellite imagery
                   color: '#ffffff',
-                  fillColor: isSelected ? '#f6eef9' : '#bbb4db',
+                  fillColor: isSelected ? '#d4cdfb' : '#a99cf6',
                   fillOpacity: isSelected ? 0.9 : 0.5,
                   weight: isSelected ? 3 : 1.5,
                 }}
@@ -86,7 +86,7 @@ export function MapMode() {
 
         {!selectedCountry && (
           <div className="pointer-events-none absolute left-1/2 top-4 z-[500] -translate-x-1/2">
-            <div className="rounded-full border border-white/[0.08] bg-[rgba(5,6,30,0.8)] px-3 py-1.5 text-xs text-white/75 backdrop-blur-md">
+            <div className="rounded-full border border-white/[0.08] bg-[rgba(35,34,44,0.8)] px-3 py-1.5 text-xs text-white/75 backdrop-blur-md">
               Tap a country → see radio stations
             </div>
           </div>

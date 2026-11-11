@@ -31,7 +31,7 @@ export function NowPlayingBar() {
   return (
     <div
       // Darker than the content panel (canvas) so it never blends into the background
-      className="absolute inset-x-2 bottom-2 flex items-center gap-3 rounded-2xl border border-white/[0.10] bg-[rgba(9,10,38,0.93)] px-3 py-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl sm:inset-x-auto sm:bottom-5 sm:left-1/2 sm:w-[690px] sm:max-w-[calc(100%-2rem)] sm:-translate-x-1/2 sm:gap-5 sm:px-5 sm:py-3.5"
+      className="absolute inset-x-2 bottom-2 flex items-center gap-3 rounded-2xl border border-white/[0.10] bg-[rgba(21,20,28,0.93)] px-3 py-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl sm:inset-x-auto sm:bottom-5 sm:left-1/2 sm:w-[690px] sm:max-w-[calc(100%-2rem)] sm:-translate-x-1/2 sm:gap-5 sm:px-5 sm:py-3.5"
       style={{ zIndex: 1100 }}
     >
       <div className="relative flex-shrink-0">
@@ -85,7 +85,7 @@ export function NowPlayingBar() {
             onChange={e => setVolume(parseFloat(e.target.value))}
             className="vol-slider"
             style={{
-              background: `linear-gradient(to right, #ede5f7 ${volume * 100}%, rgba(255,255,255,0.12) ${volume * 100}%)`,
+              background: `linear-gradient(to right, #d4cdfb ${volume * 100}%, rgba(255,255,255,0.12) ${volume * 100}%)`,
             }}
             aria-label="Volume"
           />
@@ -108,7 +108,7 @@ export function NowPlayingBar() {
         </button>
         <button
           onClick={() => toggleFavorite(currentStation)}
-          className={`p-2 transition-colors ${favorite ? 'text-white hover:text-white/80' : 'text-muted hover:text-white'}`}
+          className={`p-2 transition-colors ${favorite ? 'text-pink-400 hover:text-pink-300' : 'text-muted hover:text-white'}`}
           aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
           aria-pressed={favorite}
         >
