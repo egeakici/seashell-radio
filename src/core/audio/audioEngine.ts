@@ -185,7 +185,10 @@ class AudioEngine {
   }
 
   setVolume(v: number): void {
-    this._audio.volume = Math.max(0, Math.min(1, v));
+    const volume = Math.max(0, Math.min(1, v));
+    this._audio.volume = volume;
+    // iOS ignores `volume` (it is fixed at 1 there) but honors `muted`, so mute explicitly at 0
+    this._audio.muted = volume === 0;
   }
 
   get isPaused(): boolean {
