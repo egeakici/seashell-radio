@@ -8,7 +8,7 @@ import { formatTrack } from '../utils/track';
 // Floats at the bottom of the nearest positioned parent (the content panel or the map).
 // Phones: full-width compact mini player. Larger screens: centered 520px bar.
 export function NowPlayingBar() {
-  const { player, pauseResume, playNext, playPrev, volume, setVolume, toggleFavorite, isFavorite, nowPlaying } = useStore();
+  const { player, pauseResume, playNext, playPrev, volume, setVolume, toggleFavorite, isFavorite, nowPlaying, setMode } = useStore();
   const [prevVol, setPrevVol] = useState(volume > 0 ? volume : 0.8);
 
   const toggleMute = () => {
@@ -33,27 +33,35 @@ export function NowPlayingBar() {
       className="absolute inset-x-2 bottom-2 flex items-center gap-3 rounded-2xl border border-white/[0.10] bg-[rgba(21,20,28,0.93)] px-3 py-2.5 shadow-[0_16px_48px_rgba(0,0,0,0.55),0_0_0_1px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-2xl sm:inset-x-auto sm:bottom-5 sm:left-1/2 sm:w-[690px] sm:max-w-[calc(100%-2rem)] sm:-translate-x-1/2 sm:gap-5 sm:px-5 sm:py-3.5"
       style={{ zIndex: 1100 }}
     >
-      <div className="relative flex-shrink-0">
-        <StationFavicon src={currentStation.favicon} name={currentStation.name} size={44} />
-        {isPlaying && (
-          <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 animate-pulse rounded-full border-2 border-surface bg-live" />
-        )}
-      </div>
+      {/* Station info opens the full-screen player (Drive), like a mini player in music apps */}
+      <button
+        onClick={() => setMode('driving')}
+        className="-my-1 -ml-1 flex min-w-0 flex-1 items-center gap-3 rounded-xl py-1 pl-1 text-left transition-colors hover:bg-white/[0.04] active:bg-white/[0.06] sm:gap-5"
+        aria-label={`Open full-screen player: ${currentStation.name}`}
+        title="Open full-screen player"
+      >
+        <span className="relative block flex-shrink-0">
+          <StationFavicon src={currentStation.favicon} name={currentStation.name} size={44} />
+          {isPlaying && (
+            <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 animate-pulse rounded-full border-2 border-surface bg-live" />
+          )}
+        </span>
 
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-white truncate">{currentStation.name}</p>
-        {nowPlaying ? (
-          // Keyed so the text fades in again whenever the track changes
-          <p key={formatTrack(nowPlaying)} className="animate-fade-in flex min-w-0 items-center gap-1.5 text-xs text-white/70" title={formatTrack(nowPlaying)}>
-            <Music2 size={12} className="flex-shrink-0 text-live" aria-hidden />
-            <span className="truncate">{formatTrack(nowPlaying)}</span>
-          </p>
-        ) : (
-          <p className="text-xs text-muted truncate">
-            {[currentStation.country, currentStation.bitrate ? `${currentStation.bitrate}kbps` : ''].filter(Boolean).join(' · ')}
-          </p>
-        )}
-      </div>
+        <span className="block min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold text-white">{currentStation.name}</span>
+          {nowPlaying ? (
+            // Keyed so the text fades in again whenever the track changes
+            <span key={formatTrack(nowPlaying)} className="animate-fade-in flex min-w-0 items-center gap-1.5 text-xs text-white/70" title={formatTrack(nowPlaying)}>
+              <Music2 size={12} className="flex-shrink-0 text-live" aria-hidden />
+              <span className="truncate">{formatTrack(nowPlaying)}</span>
+            </span>
+          ) : (
+            <span className="block truncate text-xs text-muted">
+              {[currentStation.country, currentStation.bitrate ? `${currentStation.bitrate}kbps` : ''].filter(Boolean).join(' · ')}
+            </span>
+          )}
+        </span>
+      </button>
 
       <div className="flex flex-shrink-0 items-center gap-1 sm:gap-2">
         {/* Phones control volume with their hardware buttons */}
