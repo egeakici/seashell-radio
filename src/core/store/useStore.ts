@@ -211,9 +211,11 @@ export const useStore = create<Store>()(
       setActiveTag: (tag) => set({ activeTag: tag }),
     }),
     {
-      name: 'radio-browser-v1',
+      name: 'seashell-radio-v1',
       storage: createJSONStorage(() => ({
-        getItem: (name) => localStorage.getItem(name) ?? localStorage.getItem('radio-drive-v1'),
+        // Fall back to the keys used under the app's earlier names; the next save writes the new key
+        getItem: (name) =>
+          localStorage.getItem(name) ?? localStorage.getItem('radio-browser-v1') ?? localStorage.getItem('radio-drive-v1'),
         setItem: (name, value) => localStorage.setItem(name, value),
         removeItem: (name) => localStorage.removeItem(name),
       })),

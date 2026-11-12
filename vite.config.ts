@@ -8,8 +8,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Radio Browser',
-        short_name: 'Radio Browser',
+        name: 'Seashell Radio',
+        short_name: 'Seashell Radio',
         description: 'World radio stations, optimized for driving',
         theme_color: '#0f0e14',
         background_color: '#0f0e14',

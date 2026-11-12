@@ -1,14 +1,14 @@
-# Global Radio Browser
+# Seashell Radio
 
 **Discover and listen to live radio stations from around the world — directly in your browser.**
 
-**Live application:** [global-radio-browser.pages.dev](https://global-radio-browser.pages.dev/)
+**Live application:** [seashellradio.com](https://seashellradio.com/)
 
-Global Radio Browser is an open-source web application for exploring thousands of live radio stations worldwide. Search by station or country, discover broadcasts on an interactive map, and switch to a distraction-reduced listening interface. No account or subscription is required.
+Seashell Radio is an open-source web application for exploring thousands of live radio stations worldwide. Search by station or country, discover broadcasts on an interactive map, and switch to a distraction-reduced listening interface. No account or subscription is required.
 
 ## Project Goal
 
-Global Radio Browser aims to make worldwide live radio immediate, accessible, and enjoyable. It brings together stations from across the globe in a focused interface designed for everyday listening, geographic exploration, and convenient controls on desktop and mobile devices.
+Seashell Radio aims to make worldwide live radio immediate, accessible, and enjoyable. It brings together stations from across the globe in a focused interface designed for everyday listening, geographic exploration, and convenient controls on desktop and mobile devices.
 
 The experience is organized around three complementary modes:
 
@@ -122,7 +122,7 @@ The application uses a shared core for audio playback, API access, state, and br
 
 ## Live Deployment
 
-**Production URL:** https://global-radio-browser.pages.dev/
+**Production URL:** https://seashellradio.com/
 
 The application is hosted on **Cloudflare Pages**, with production builds deployed automatically from the GitHub repository's `main` branch. The browser fetches station metadata from Radio Browser and connects to the individual radio streams. The server side consists of two small Cloudflare Pages Functions. `/api/nowplaying` reads the song a station is announcing from its stream metadata; answers are cached per station for about 20 seconds, so many listeners of one station cost a single upstream read. `/api/stream` relays streams that browsers block on an HTTPS page (`http://` streams and HLS streams without CORS headers) and rewrites HLS playlists so their segments are relayed too. It only passes through audio, video and playlist responses and rejects cross-site use. No user account is required.
 

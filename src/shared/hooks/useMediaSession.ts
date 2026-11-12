@@ -24,7 +24,7 @@ export function useMediaSession() {
         : {
             title: currentStation.name,
             artist: nowPlaying?.kind === 'text' ? nowPlaying.text : currentStation.country || '',
-            album: 'Radio Browser - Live Radio',
+            album: 'Seashell Radio',
             artwork,
           },
     );

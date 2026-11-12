@@ -62,7 +62,7 @@ export const onRequestGet = async ({ request }: { request: Request }): Promise<R
   let upstream: Response;
   try {
     upstream = await fetch(target.toString(), {
-      headers: { 'User-Agent': 'GlobalRadioBrowser/1.0', Accept: '*/*' },
+      headers: { 'User-Agent': 'SeashellRadio/1.0', Accept: '*/*' },
       redirect: 'follow',
       signal: controller.signal,
     });

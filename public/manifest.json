@@ -1,6 +1,6 @@
 {
-  "name": "Radio Browser",
-  "short_name": "Radio Browser",
+  "name": "Seashell Radio",
+  "short_name": "Seashell Radio",
   "description": "World radio stations, built for driving",
   "start_url": "/",
   "display": "standalone",

@@ -34,8 +34,8 @@ export default function App() {
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="" width={36} height={36} className="h-9 w-9 flex-shrink-0 select-none" draggable={false} />
             <span className="text-[16px] font-semibold leading-none tracking-[-0.01em]">
-              <span className="text-white">Radio</span>
-              <span className="text-white/45">Browser</span>
+              <span className="text-white">Seashell</span>
+              <span className="text-white/45">Radio</span>
             </span>
           </div>
 

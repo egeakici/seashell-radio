@@ -1,18 +1,21 @@
 import type { Station } from '../types';
 
-const KEY = 'radio-browser-favorites';
-const LEGACY_KEY = 'radio-drive-favorites';
+const KEY = 'seashell-radio-favorites';
+// Keys used under the app's earlier names, newest first. Read once and copied to KEY.
+const LEGACY_KEYS = ['radio-browser-favorites', 'radio-drive-favorites'];
 const LEGACY_STORE_KEY = 'radio-drive-v1';
 
 export const favoritesStorage = {
   load(): Station[] {
     try {
-      const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY);
-      if (raw !== null) {
+      const current = localStorage.getItem(KEY);
+      if (current !== null) return JSON.parse(current) as Station[];
+
+      for (const key of LEGACY_KEYS) {
+        const raw = localStorage.getItem(key);
+        if (raw === null) continue;
         const parsed = JSON.parse(raw) as Station[];
-        if (localStorage.getItem(KEY) === null && localStorage.getItem(LEGACY_KEY) !== null) {
-          this.save(parsed);
-        }
+        this.save(parsed);
         return parsed;
       }
       // One-time migration: move favorites from old Zustand persist key

@@ -78,7 +78,7 @@ async function readNowPlaying(target: URL): Promise<NowPlaying> {
   let res: Response;
   try {
     res = await fetch(target.toString(), {
-      headers: { 'Icy-MetaData': '1', 'User-Agent': 'GlobalRadioBrowser/1.0', Accept: '*/*' },
+      headers: { 'Icy-MetaData': '1', 'User-Agent': 'SeashellRadio/1.0', Accept: '*/*' },
       redirect: 'follow',
       signal: controller.signal,
     });
