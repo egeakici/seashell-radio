@@ -32,11 +32,18 @@ export function genreLabel(value: string): string {
 }
 
 interface Props {
-  view: DiscoveryView;
+  /** Highlighted library view; undefined when the sidebar sits next to the map */
+  view: DiscoveryView | undefined;
   onViewChange: (view: DiscoveryView) => void;
+  /**
+   * Region and genre are filters. By default picking one shows the browse list;
+   * next to the map they are handled in place instead.
+   */
+  onCountrySelect?: (code: string | null) => void;
+  onGenreSelect?: (tag: string | null) => void;
 }
 
-export function DiscoverySidebar({ view, onViewChange }: Props) {
+export function DiscoverySidebar({ view, onViewChange, onCountrySelect, onGenreSelect }: Props) {
   const { favorites, lists, activeTag, setActiveTag, setSearchQuery, selectedCountryCode } = useStore();
   const { countries } = useCountries();
   const selectedCountry = countries.find(c => c.iso_3166_1 === selectedCountryCode);
@@ -47,9 +54,17 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
     onViewChange(next);
   };
 
+  // view == null: browsing (null) or next to the map (undefined) — where genres act as a filter
   const selectGenre = (value: string) => {
-    setActiveTag(activeTag === value && view === null ? null : value);
-    go(null);
+    const next = activeTag === value && view == null ? null : value;
+    setActiveTag(next);
+    if (onGenreSelect) onGenreSelect(next);
+    else go(null);
+  };
+
+  const selectCountry = (code: string | null) => {
+    if (onCountrySelect) onCountrySelect(code);
+    else go(null);
   };
 
   return (
@@ -84,7 +99,7 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
       </Section>
 
       <Section title="Region">
-        <CountrySelector onSelect={() => go(null)} />
+        <CountrySelector onSelect={selectCountry} />
       </Section>
 
       <Section title="Genres" hint={selectedCountry ? `In ${selectedCountry.name}` : undefined}>
@@ -94,7 +109,7 @@ export function DiscoverySidebar({ view, onViewChange }: Props) {
             <SidebarItem
               key={genre.value}
               label={genre.label}
-              active={view === null && activeTag === genre.value}
+              active={view == null && activeTag === genre.value}
               onClick={() => selectGenre(genre.value)}
               leading={
                 <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg ${genre.tile}`}>

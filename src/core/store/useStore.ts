@@ -18,9 +18,10 @@ interface Store {
   mode: AppMode;
   setMode: (mode: AppMode) => void;
 
-  // Map panel state (controls island bar visibility)
-  mapPanelOpen: boolean;
-  setMapPanelOpen: (open: boolean) => void;
+  // Discover page view: null = browse, 'trending' | 'recent' | 'favorites', or a custom list id.
+  // Lives here so the sidebar next to the map can open a library view in Discover.
+  discoveryView: string | null;
+  setDiscoveryView: (view: string | null) => void;
 
   // Player
   player: PlayerSlice;
@@ -77,8 +78,8 @@ export const useStore = create<Store>()(
       mode: 'discovery',
       setMode: (mode) => set({ mode }),
 
-      mapPanelOpen: false,
-      setMapPanelOpen: (open) => set({ mapPanelOpen: open }),
+      discoveryView: null,
+      setDiscoveryView: (view) => set({ discoveryView: view }),
 
       volume: _initialVolume,
       setVolume: (v) => {

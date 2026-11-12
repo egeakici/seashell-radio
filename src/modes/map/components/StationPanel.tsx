@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, ListMusic } from 'lucide-react';
 import type { Country, Station } from '../../../core/types';
-import { getStationsByCountry } from '../../../core/api/radioBrowser';
+import { getStationsByCountry, getStationsByCountryAndTag } from '../../../core/api/radioBrowser';
+import { genreLabel } from '../../discovery/components/DiscoverySidebar';
 import { useStore } from '../../../core/store/useStore';
 import { StationCard } from '../../discovery/components/StationCard';
 import { LoadingSpinner } from '../../../shared/components/LoadingSpinner';
@@ -13,9 +14,9 @@ interface Props {
 }
 
 // Heights are percentages of the map area (the panel's positioned parent)
-const MIN_HEIGHT = 20;
+const MIN_HEIGHT = 25;
 const MAX_HEIGHT = 92;
-const DEFAULT_HEIGHT = 40;
+export const DEFAULT_HEIGHT = 40;
 
 export function StationPanel({ country, onClose }: Props) {
   const [stations, setStations] = useState<Station[]>([]);
@@ -23,7 +24,7 @@ export function StationPanel({ country, onClose }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [height, setHeight] = useState(DEFAULT_HEIGHT);
   const panelRef = useRef<HTMLDivElement>(null);
-  const { player, setQueue, playStation } = useStore();
+  const { player, setQueue, playStation, activeTag, setActiveTag } = useStore();
 
   const startDrag = useCallback((startClientY: number) => {
     const startHeight = height;
@@ -54,7 +55,12 @@ export function StationPanel({ country, onClose }: Props) {
     setError(null);
     setStations([]);
 
-    getStationsByCountry(country.iso_3166_1)
+    // A genre picked in the sidebar narrows the country's stations
+    const request = activeTag
+      ? getStationsByCountryAndTag(country.iso_3166_1, activeTag)
+      : getStationsByCountry(country.iso_3166_1);
+
+    request
       .then(data => {
         if (!cancelled) {
           setStations(data);
@@ -69,7 +75,7 @@ export function StationPanel({ country, onClose }: Props) {
       });
 
     return () => { cancelled = true; };
-  }, [country.iso_3166_1]);
+  }, [country.iso_3166_1, activeTag]);
 
   const handlePlayAll = () => {
     if (!stations.length) return;
@@ -80,7 +86,7 @@ export function StationPanel({ country, onClose }: Props) {
   const hasNowPlaying = !!player.currentStation;
 
   return (
-    // Slides up from the bottom of the map area (stays above the phone tab bar)
+    // Slides up from the bottom of the map panel only, so the sidebar stays uncovered
     <div
       ref={panelRef}
       className="absolute bottom-0 left-0 right-0 flex flex-col rounded-t-2xl border-t border-white/[0.06] bg-canvas shadow-2xl"
@@ -102,9 +108,19 @@ export function StationPanel({ country, onClose }: Props) {
           <span className="text-3xl leading-none">{countryCodeToFlag(country.iso_3166_1)}</span>
           <div>
             <h2 className="text-base font-bold text-white leading-tight">{country.name}</h2>
-            <p className="text-xs text-muted">
-              {isLoading ? 'Loading...' : `${stations.length} stations`}
-            </p>
+            <div className="flex items-center gap-2 text-xs text-muted">
+              <span>{isLoading ? 'Loading...' : `${stations.length} stations`}</span>
+              {activeTag && (
+                <button
+                  onClick={() => setActiveTag(null)}
+                  className="flex items-center gap-1 rounded-md bg-white/[0.07] py-0.5 pl-2 pr-1 text-[11px] font-medium text-white/80 transition-colors hover:bg-white/[0.12] hover:text-white"
+                  aria-label={`Clear genre filter ${genreLabel(activeTag)}`}
+                >
+                  {genreLabel(activeTag)}
+                  <X size={11} />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -129,10 +145,8 @@ export function StationPanel({ country, onClose }: Props) {
       </div>
 
       {/* Scrollable station list */}
-      <div
-        className="overflow-y-auto flex-1 px-2"
-        style={{ paddingBottom: hasNowPlaying ? '80px' : '16px' }}
-      >
+      {/* The now-playing bar floats over the panel's bottom — keep the last rows reachable */}
+      <div className={`flex-1 overflow-y-auto px-2 ${hasNowPlaying ? 'pb-24 sm:pb-28' : 'pb-4'}`}>
         {isLoading ? (
           <div className="flex justify-center items-center py-10">
             <LoadingSpinner size={30} />

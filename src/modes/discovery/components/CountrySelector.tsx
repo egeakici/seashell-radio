@@ -5,10 +5,15 @@ import { useCountries } from '../hooks/useCountries';
 import { LoadingSpinner } from '../../../shared/components/LoadingSpinner';
 import { countryCodeToFlag } from '../../../shared/utils/countryFlag';
 
+// Case- and accent-insensitive form for matching: "Turk" finds "Türkiye", "cote" finds "Côte d'Ivoire"
+function foldText(text: string): string {
+  return text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+}
+
 // Lives inside the scrolling sidebar, so the country list expands in place instead of
 // floating as an absolutely positioned dropdown (which the scroll container would clip).
 // The selected genre is kept, so country and genre combine (e.g. pop stations in Türkiye).
-export function CountrySelector({ onSelect }: { onSelect?: () => void }) {
+export function CountrySelector({ onSelect }: { onSelect?: (code: string | null) => void }) {
   const { selectedCountryCode, setSelectedCountryCode } = useStore();
   const { countries, isLoading } = useCountries();
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,8 +21,8 @@ export function CountrySelector({ onSelect }: { onSelect?: () => void }) {
 
   const filtered = useMemo(() => {
     if (!searchQuery.trim()) return countries.slice(0, 30);
-    const q = searchQuery.toLowerCase();
-    return countries.filter(c => c.name.toLowerCase().includes(q)).slice(0, 30);
+    const q = foldText(searchQuery.trim());
+    return countries.filter(c => foldText(c.name).includes(q)).slice(0, 30);
   }, [countries, searchQuery]);
 
   const selectedCountry = countries.find(c => c.iso_3166_1 === selectedCountryCode);
@@ -26,7 +31,7 @@ export function CountrySelector({ onSelect }: { onSelect?: () => void }) {
     setSelectedCountryCode(code);
     setIsOpen(false);
     setSearchQuery('');
-    onSelect?.();
+    onSelect?.(code);
   };
 
   return (

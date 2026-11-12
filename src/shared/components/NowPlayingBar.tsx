@@ -8,7 +8,7 @@ import { formatTrack } from '../utils/track';
 // Floats at the bottom of the nearest positioned parent (the content panel or the map).
 // Phones: full-width compact mini player. Larger screens: centered 520px bar.
 export function NowPlayingBar() {
-  const { player, pauseResume, playNext, playPrev, mode, mapPanelOpen, volume, setVolume, toggleFavorite, isFavorite, nowPlaying } = useStore();
+  const { player, pauseResume, playNext, playPrev, volume, setVolume, toggleFavorite, isFavorite, nowPlaying } = useStore();
   const [prevVol, setPrevVol] = useState(volume > 0 ? volume : 0.8);
 
   const toggleMute = () => {
@@ -24,7 +24,6 @@ export function NowPlayingBar() {
   const { currentStation, isPlaying, isLoading } = player;
 
   if (!currentStation) return null;
-  if (mode === 'map' && mapPanelOpen) return null;
 
   const favorite = isFavorite(currentStation.stationuuid);
 

@@ -1,15 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Search, X, Heart, ListMusic, Trash2, SlidersHorizontal, History } from 'lucide-react';
 import { useStore } from '../../core/store/useStore';
 import type { StationList as CustomList } from '../../core/types';
 import { DiscoverySidebar, type DiscoveryView } from './components/DiscoverySidebar';
+import { SidebarLayout } from './components/SidebarLayout';
 import { StationList, StationListView, TrendingList } from './components/StationList';
 import { NowPlayingBar } from '../../shared/components/NowPlayingBar';
 
 export function DiscoveryMode() {
-  const { searchQuery, setSearchQuery, lists, selectedCountryCode, activeTag } = useStore();
-  const [view, setView] = useState<DiscoveryView>(null);
+  const {
+    searchQuery, setSearchQuery, lists, selectedCountryCode, activeTag,
+    discoveryView: view, setDiscoveryView: setView,
+  } = useStore();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const closeDrawer = useCallback(() => setDrawerOpen(false), []);
 
   const activeList = lists.find(l => l.id === view);
   const hasActiveFilter = view !== null || !!selectedCountryCode || !!activeTag;
@@ -18,15 +22,7 @@ export function DiscoveryMode() {
   useEffect(() => {
     const isLibraryView = view === null || view === 'trending' || view === 'recent' || view === 'favorites';
     if (!isLibraryView && !activeList) setView(null);
-  }, [view, activeList]);
-
-  // Close the mobile drawer with Escape
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setDrawerOpen(false); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [drawerOpen]);
+  }, [view, activeList, setView]);
 
   const handleSearch = (q: string) => {
     setSearchQuery(q);
@@ -40,86 +36,60 @@ export function DiscoveryMode() {
   };
 
   return (
-    <div className="h-full lg:px-3 lg:pb-3 xl:px-5">
-      <div className="mx-auto flex h-full max-w-[1624px] gap-3">
-        {/* Sidebar panel — desktop */}
-        <aside className="hidden w-64 flex-shrink-0 overflow-y-auto rounded-2xl border border-white/[0.04] bg-panel px-3 py-5 lg:block xl:w-72">
-          <DiscoverySidebar view={view} onViewChange={handleViewChange} />
-        </aside>
+    <SidebarLayout
+      sidebar={<DiscoverySidebar view={view} onViewChange={handleViewChange} />}
+      drawerOpen={drawerOpen}
+      onCloseDrawer={closeDrawer}
+    >
+      {/* Content panel — positioned so the now-playing bar centers on it, not on the screen */}
+      <section className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-canvas lg:rounded-2xl lg:border lg:border-white/[0.04]">
+        {/* Soft tint at the top of the panel */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-accent/[0.07] via-accent/[0.02] to-transparent" aria-hidden />
 
-        {/* Content panel — positioned so the now-playing bar centers on it, not on the screen */}
-        <section className="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-canvas lg:rounded-2xl lg:border lg:border-white/[0.04]">
-          {/* Soft tint at the top of the panel */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-accent/[0.07] via-accent/[0.02] to-transparent" aria-hidden />
+        <div className="relative flex items-center gap-2 px-4 pb-4 pt-4 lg:px-8 lg:pt-6">
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="relative flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.05] text-white/60 transition-colors hover:text-white lg:hidden"
+            aria-label="Open library and filters"
+          >
+            <SlidersHorizontal size={17} />
+            {hasActiveFilter && <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />}
+          </button>
 
-          <div className="relative flex items-center gap-2 px-4 pb-4 pt-4 lg:px-8 lg:pt-6">
-            <button
-              onClick={() => setDrawerOpen(true)}
-              className="relative flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.05] text-white/60 transition-colors hover:text-white lg:hidden"
-              aria-label="Open library and filters"
-            >
-              <SlidersHorizontal size={17} />
-              {hasActiveFilter && <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />}
-            </button>
-
-            <div className="flex flex-1 items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.05] px-3.5 py-2.5 transition-colors focus-within:border-accent/40 focus-within:bg-white/[0.07]">
-              <Search size={16} className="flex-shrink-0 text-white/40" />
-              <input
-                type="text"
-                placeholder="Search stations..."
-                value={searchQuery}
-                onChange={e => handleSearch(e.target.value)}
-                className="flex-1 bg-transparent text-sm text-white placeholder-white/35 outline-none"
-              />
-              {searchQuery && (
-                <button onClick={() => handleSearch('')} className="text-white/40 hover:text-white" aria-label="Clear search">
-                  <X size={14} />
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="relative flex-1 overflow-y-auto px-2 pb-28 sm:px-4 sm:pb-32 lg:px-6">
-            {view === 'trending' ? (
-              <TrendingList />
-            ) : view === 'recent' ? (
-              <RecentlyPlayedList />
-            ) : view === 'favorites' ? (
-              <FavoritesList />
-            ) : activeList ? (
-              <CustomListView list={activeList} />
-            ) : (
-              <StationList />
+          <div className="flex flex-1 items-center gap-2.5 rounded-xl border border-white/[0.06] bg-white/[0.05] px-3.5 py-2.5 transition-colors focus-within:border-accent/40 focus-within:bg-white/[0.07]">
+            <Search size={16} className="flex-shrink-0 text-white/40" />
+            <input
+              type="text"
+              placeholder="Search stations..."
+              value={searchQuery}
+              onChange={e => handleSearch(e.target.value)}
+              className="flex-1 bg-transparent text-sm text-white placeholder-white/35 outline-none"
+            />
+            {searchQuery && (
+              <button onClick={() => handleSearch('')} className="text-white/40 hover:text-white" aria-label="Clear search">
+                <X size={14} />
+              </button>
             )}
           </div>
-
-          <NowPlayingBar />
-        </section>
-      </div>
-
-      {/* Sidebar — mobile drawer */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-[1300] lg:hidden" role="dialog" aria-modal="true" aria-label="Library and filters">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDrawerOpen(false)} />
-          <div
-            className="animate-slide-in-left absolute inset-y-0 left-0 w-[290px] max-w-[85vw] overflow-y-auto overscroll-contain border-r border-white/[0.06] bg-panel px-3 pb-10 pt-5"
-            style={{ paddingTop: 'calc(1.25rem + env(safe-area-inset-top))' }}
-          >
-            <div className="mb-5 flex items-center justify-between px-3">
-              <span className="text-sm font-semibold text-white">Library & Filters</span>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="rounded-lg p-1.5 text-white/50 hover:bg-white/[0.06] hover:text-white"
-                aria-label="Close"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <DiscoverySidebar view={view} onViewChange={handleViewChange} />
-          </div>
         </div>
-      )}
-    </div>
+
+        <div className="relative flex-1 overflow-y-auto px-2 pb-28 sm:px-4 sm:pb-32 lg:px-6">
+          {view === 'trending' ? (
+            <TrendingList />
+          ) : view === 'recent' ? (
+            <RecentlyPlayedList />
+          ) : view === 'favorites' ? (
+            <FavoritesList />
+          ) : activeList ? (
+            <CustomListView list={activeList} />
+          ) : (
+            <StationList />
+          )}
+        </div>
+
+        <NowPlayingBar />
+      </section>
+    </SidebarLayout>
   );
 }
 
