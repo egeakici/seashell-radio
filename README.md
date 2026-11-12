@@ -4,81 +4,107 @@
 
 **Live application:** [seashellradio.com](https://seashellradio.com/)
 
-Seashell Radio is an open-source web application for exploring thousands of live radio stations worldwide. Search by station or country, discover broadcasts on an interactive map, and switch to a distraction-reduced listening interface. No account or subscription is required.
+![Seashell Radio — Discover](docs/screenshots/discover.png)
+
+Seashell Radio is an open-source web application for exploring thousands of live radio stations worldwide. Browse what is popular, filter by country and genre, explore stations on a satellite world map, and switch to a large, distraction-reduced player for the car. No account or subscription is required.
+
+## Screenshots
+
+| Map | Drive |
+|---|---|
+| ![Map mode: satellite map with the station panel for Türkiye](docs/screenshots/map.jpg) | ![Drive mode: large controls, now playing card and up next queue](docs/screenshots/drive.png) |
+
+<p align="center">
+  <img src="docs/screenshots/mobile.png" alt="Seashell Radio on a phone with the mini player and bottom tab bar" width="300">
+</p>
 
 ## Project Goal
 
 Seashell Radio aims to make worldwide live radio immediate, accessible, and enjoyable. It brings together stations from across the globe in a focused interface designed for everyday listening, geographic exploration, and convenient controls on desktop and mobile devices.
 
-The experience is organized around three complementary modes:
+The experience is organized around three modes:
 
-- **Search Mode** — Discover stations by name, country, genre, tag, or favorites.
-- **Map Mode** — Explore stations geographically through an interactive world map.
-- **Car Mode** — Use large playback controls, swipe navigation, and supported device media controls.
+- **Discover** — Browse top rated and trending stations, search, and filter by country and genre.
+- **Map** — Explore stations geographically on a satellite world map.
+- **Drive** — Use large playback controls, swipe navigation, and device media controls.
 
-These modes share a centralized playback engine so users can switch between views without interrupting the active stream.
+All modes share one playback engine, so switching between them never interrupts the active stream.
 
 ## Key Features
 
-### Worldwide Live Radio
+### Discover
 
-- Browse stations from the open [Radio Browser](https://www.radio-browser.info/) directory.
-- Discover popular stations immediately.
-- Search by station name and filter by country or genre.
-- Browse tags such as pop, rock, jazz, classical, electronic, news, talk, dance, and more.
-- Filter out stations marked as broken by the Radio Browser API.
+- **Library**
+  - **Browse** — the community's top rated stations.
+  - **Trending** — the most played stations in the last 24 hours.
+  - **Recently Played** — your listening history.
+  - **Favorites** — stations you have saved.
+- **My Lists** — create your own station lists.
+- **Region and genre filters that combine**, for example pop stations in Türkiye.
+- Search stations by name.
 
-### Search Mode
+### Map
 
-- Search stations by name, country, and genre/tag.
-- Save and revisit favorite stations.
-- Build and manage station lists.
-- Start playback directly from a station card.
+- Satellite imagery with country borders and place names.
+- Country markers sized by the number of stations.
+- The same Library and filters sidebar as Discover. Picking a country flies the map to it and opens its stations.
+- A resizable station panel inside the map area. A genre picked in the sidebar narrows the country's stations.
+- Add every station of a country to the playback queue.
 
-### Map Mode
-
-- Explore countries on an interactive Leaflet map.
-- View station density through proportional country markers.
-- Open a country panel to browse available stations.
-- Add stations from a country to the playback queue.
-
-### Car Mode
+### Drive
 
 - Full-screen, distraction-reduced listening interface.
 - Large play, pause, previous, and next controls.
-- Swipe left or right to change stations.
+- Swipe left or right to change stations; an "Up next" list shows the queue.
 - Screen Wake Lock support where available.
-- Media Session integration for supported Bluetooth, lock-screen, and vehicle media controls.
+- Media Session integration for Bluetooth, lock-screen, and vehicle media controls.
 
-### Playback Experience
+### Playback
 
-- Centralized audio engine that preserves playback between modes.
+- **Now playing** — the current song and artist, when the station announces them in its stream (ICY metadata). Shown in the player, in Drive mode, and on lock screens and car displays.
 - Standard browser audio streams and HLS (`.m3u8`) playback through `hls.js`.
 - Automatic fallback for streams the browser cannot load directly: `http://` streams are first upgraded to `https://`, then relayed through a same-origin stream proxy.
-- Now playing: the current song and artist, when the station announces them in its stream (ICY metadata), shown in the player, Car Mode and on lock screens / car displays.
-- Playback status synchronization across the interface.
-- Persistent volume settings and queue navigation.
+- Volume slider with one-click mute; the volume is remembered between visits.
 
-### Favorites and Preferences
+### Mobile and Installable App
 
-- Save favorite stations and custom lists in browser storage.
-- Preserve preferences between sessions on the same browser and device.
-- Use the application without creating an account.
+- Phone layout with a bottom tab bar, a compact mini player, and a slide-in Library and filters drawer.
+- Installable as a Progressive Web App (PWA) on phones and desktops.
+
+### Privacy
+
+- No account, sign-up, or subscription.
+- Favorites, lists, history, and volume are stored only in your browser (`localStorage`) and are never sent to a server.
+- Data does not sync between browsers or devices yet.
 
 ### Reliability
 
-- Multiple Radio Browser API mirrors:
+- Multiple Radio Browser API mirrors with automatic fallback:
   - `de1.api.radio-browser.info`
   - `nl1.api.radio-browser.info`
   - `at1.api.radio-browser.info`
-- Automatic fallback when an API mirror is unavailable.
-- Station click registration for Radio Browser community statistics.
+- Stations marked as broken by the Radio Browser API are filtered out.
+- Station click registration feeds Radio Browser's community statistics.
 
-### Progressive Web App
+## Getting Started
 
-- PWA configuration via `vite-plugin-pwa`.
-- Standalone display mode for supported installations.
-- Service worker updates and static asset caching through Workbox.
+**Requirements:** [Node.js](https://nodejs.org/) 18 or newer (20 LTS recommended) and npm.
+
+```bash
+git clone https://github.com/egeakici/seashell-radio.git
+cd seashell-radio
+npm install
+npm run dev
+```
+
+Open http://127.0.0.1:5500 in your browser. On Windows you can also double-click `start.bat`, which starts the dev server and opens the page.
+
+`npm run dev` does not run the Cloudflare Pages Functions (the stream proxy and now playing). On the plain-HTTP dev server most streams play directly without the proxy. To run the app with the functions, build it and use the Pages runtime:
+
+```bash
+npm run build
+npx wrangler pages dev dist
+```
 
 ## Tech Stack
 
@@ -86,16 +112,16 @@ These modes share a centralized playback engine so users can switch between view
 - **Styling:** Tailwind CSS
 - **State management:** Zustand
 - **Audio:** HTMLAudioElement, hls.js
-- **Map:** Leaflet, React Leaflet
+- **Map:** Leaflet, React Leaflet, Esri World Imagery
 - **PWA:** Vite PWA Plugin, Workbox
 - **Icons:** Lucide React
-- **Deployment:** Cloudflare Pages
+- **Hosting:** Cloudflare Pages and Pages Functions
 
 ## Architecture Overview
 
 ```text
 functions/
-  api/stream.ts       Cloudflare Pages Function that relays http-only and CORS-less streams
+  api/stream.ts       Relays http-only and CORS-less streams for the HTTPS site
   api/nowplaying.ts   Reads the current song from a stream's ICY metadata (cached per station)
   _shared/            Request checks shared by the functions
 
@@ -108,36 +134,30 @@ src/
     types/        Shared TypeScript types
 
   modes/
-    discovery/    Search, filters, favorites, and station lists
-    map/          Geographic exploration and country station panel
+    discovery/    Library, search, filters, lists, and the shared sidebar layout
+    map/          Satellite map and country station panel
     driving/      Full-screen car listening interface
 
   shared/
-    components/   Reusable UI components
-    hooks/        MediaSession, audio events, and swipe gestures
-    utils/        Country flags and country coordinates
+    components/   Reusable UI components, including the now playing bar
+    hooks/        Media Session, audio events, now playing, and swipe gestures
+    utils/        Country flags, country coordinates, and track formatting
 ```
-
-The application uses a shared core for audio playback, API access, state, and browser persistence. The three interface modes remain separate while using the same playback state and queue.
 
 ## Live Deployment
 
 **Production URL:** https://seashellradio.com/
 
-The application is hosted on **Cloudflare Pages**, with production builds deployed automatically from the GitHub repository's `main` branch. The browser fetches station metadata from Radio Browser and connects to the individual radio streams. The server side consists of two small Cloudflare Pages Functions. `/api/nowplaying` reads the song a station is announcing from its stream metadata; answers are cached per station for about 20 seconds, so many listeners of one station cost a single upstream read. `/api/stream` relays streams that browsers block on an HTTPS page (`http://` streams and HLS streams without CORS headers) and rewrites HLS playlists so their segments are relayed too. It only passes through audio, video and playlist responses and rejects cross-site use. No user account is required.
+The application is hosted on **Cloudflare Pages**. Every push to the `main` branch is built and deployed automatically.
 
-To test the proxy locally, build the app and run it with the Pages runtime:
+The browser loads station data from Radio Browser and connects to the radio streams directly. The server side consists of two small Cloudflare Pages Functions:
 
-```bash
-npm run build
-npx wrangler pages dev dist
-```
-
-`npm run dev` does not run Pages Functions; on the plain-HTTP dev server most streams play directly without the proxy.
+- **`/api/nowplaying`** reads the song a station is announcing from its stream metadata. Answers are cached per station for about 20 seconds, so many listeners of one station cost a single upstream read.
+- **`/api/stream`** relays streams that browsers block on an HTTPS page (`http://` streams and HLS streams without CORS headers) and rewrites HLS playlists so their segments are relayed too. It only passes through audio, video, and playlist responses, refuses private network addresses, and rejects cross-site use.
 
 ## Data Source
 
-Station and country data comes from [Radio Browser](https://www.radio-browser.info/), a free, open, community-driven radio station directory.
+Station and country data comes from [Radio Browser](https://www.radio-browser.info/), a free, open, community-driven radio station directory. Seashell Radio is an independent project and is not affiliated with Radio Browser.
 
 The project does not require a private API key. Station availability and stream quality depend on public directory data and the individual broadcasters. Radio streams and station branding remain the responsibility of their respective providers.
 
@@ -151,12 +171,11 @@ The project does not require a private API key. Station availability and stream 
 
 ## Roadmap
 
-- Listening history and recently played stations.
-- Import and export of favorites.
+- Optional accounts so favorites and lists sync across devices.
+- Import and export of favorites and lists.
 - More filters for language, codec, bitrate, and popularity.
 - Better offline app-shell behavior for PWA installations.
 - Optional station health indicators.
-- Responsive improvements for tablets and dashboard-mounted screens.
 
 ## License
 
