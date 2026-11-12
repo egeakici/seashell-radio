@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Heart, Wifi, Compass, Music2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Play, Pause, SkipBack, SkipForward, Heart, Wifi, Compass, Music2, Volume1, Volume2, VolumeX } from 'lucide-react';
 import { useStore } from '../../core/store/useStore';
 import { useSwipe } from '../../shared/hooks/useSwipe';
 import { StationFavicon } from '../../shared/components/StationFavicon';
@@ -194,8 +194,8 @@ export function DrivingMode() {
                 <SkipForward size={34} />
               </button>
 
-              {/* Balances the favorite button so play stays centered */}
-              <div className="h-14 w-14" aria-hidden />
+              {/* Same size as the favorite button, so play stays centered */}
+              <DriveVolume />
             </div>
 
             {canSkip && (
@@ -241,5 +241,59 @@ function PickerRow({ station, active, onClick }: { station: Station; active: boo
         <p className="truncate text-sm text-white/40">{station.country}</p>
       </div>
     </button>
+  );
+}
+
+// Mute toggle, mirroring the favorite button. On pointer devices a vertical slider opens
+// above it on hover/focus; phones keep using their hardware volume buttons.
+function DriveVolume() {
+  const { volume, setVolume } = useStore();
+  const [prevVol, setPrevVol] = useState(volume > 0 ? volume : 0.8);
+  const muted = volume === 0;
+  const Icon = muted ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
+
+  const toggleMute = () => {
+    if (muted) {
+      setVolume(prevVol);
+    } else {
+      setPrevVol(volume);
+      setVolume(0);
+    }
+  };
+
+  return (
+    <div className="group relative">
+      {/* pb-3 bridges the gap, so moving the pointer up to the slider keeps it open */}
+      <div className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 pb-3 opacity-0 transition-opacity duration-200 [@media(hover:hover)]:group-focus-within:pointer-events-auto [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:pointer-events-auto [@media(hover:hover)]:group-hover:opacity-100">
+        <div className="flex h-40 w-12 items-center justify-center rounded-2xl border border-white/[0.08] bg-surface/95 shadow-float backdrop-blur-xl">
+          <div className="-rotate-90">
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={volume}
+              onChange={e => setVolume(parseFloat(e.target.value))}
+              className="vol-slider vol-slider--static"
+              style={{
+                background: `linear-gradient(to right, #d4cdfb ${volume * 100}%, rgba(255,255,255,0.12) ${volume * 100}%)`,
+              }}
+              aria-label="Volume"
+            />
+          </div>
+        </div>
+      </div>
+
+      <button
+        onClick={toggleMute}
+        className={`flex h-14 w-14 items-center justify-center rounded-full transition-all ${
+          muted ? 'bg-white/[0.08] text-white' : 'text-white/30 hover:text-white/60'
+        }`}
+        aria-label={muted ? 'Unmute' : 'Mute'}
+        aria-pressed={muted}
+      >
+        <Icon size={24} />
+      </button>
+    </div>
   );
 }

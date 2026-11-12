@@ -88,6 +88,13 @@
   transition: width 0.22s ease, opacity 0.18s ease, transform 0.22s ease;
 }
 
+/* Always-visible variant, used in the Drive mode volume popover */
+.vol-slider.vol-slider--static {
+  width: 112px;
+  opacity: 1;
+  transform: none;
+}
+
 /* display is set by the markup (hidden on phones, flex from sm).
    row-reverse keeps the speaker button pinned on the right: on hover the control
    grows to the left and the slider opens there, so the button never moves under
